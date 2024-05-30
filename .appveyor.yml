@@ -1,10 +1,14 @@
 version: "{build}-{branch}"
 
-build_script:
-  - cmake -B build -DCMAKE_BUILD_TYPE=Release
+build_script: |-
+    cmake -B build -DCMAKE_BUILD_TYPE=Release
     -DCMAKE_OSX_ARCHITECTURES=$ARCH -DCMAKE_OSX_DEPLOYMENT_TARGET=$DEPLOY_TARGET
-  - cmake --build build
-  - cd build 
+    cmake --build build
+    cd build 
+    shopt -s extglob  # Enable bash extended globbing
+    rm -rf build-archive
+    mkdir build-archive
+    mv *_artefacts/${{ env.BUILD_TYPE }}/@(VST3|AU|AAX)/*.@(vst3|component|aax) build-archive/
 
 for:
   - matrix: { only: [ appveyor_build_worker_image: &linux Ubuntu1804 ] }
@@ -27,6 +31,15 @@ for:
       
       sudo update-alternatives --set gcc /usr/bin/gcc-7
       sudo apt-get install -qq --allow-downgrades libstdc++6=8.4.0-1ubuntu1~18.04 > /dev/null
+
+      sudo apt-get install -y \
+        libasound2-dev libjack-jackd2-dev \
+        ladspa-sdk \
+        libcurl4-openssl-dev  \
+        libfreetype6-dev \
+        libx11-dev libxcomposite-dev libxcursor-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev \
+        libwebkit2gtk-4.0-dev \
+        libglu1-mesa-dev mesa-common-dev
 
       case $ARCH in
       x86_64)
@@ -88,9 +101,6 @@ environment:
   REPO_TAG: $(APPVEYOR_REPO_TAG_NAME)
 
   matrix:
-    - job_name: macOS x86 32-bit
-      appveyor_build_worker_image: macos-mojave
-      ARCH: i386
     - job_name: Linux ARM 32-bit
       appveyor_build_worker_image: *linux
       ARCH: armv7l
@@ -100,6 +110,9 @@ environment:
     - job_name: Linux ARM 64-bit
       appveyor_build_worker_image: *linux
       ARCH: aarch64
+    - job_name: macOS x86 32-bit
+      appveyor_build_worker_image: macos-mojave
+      ARCH: i386
 
 deploy:
   provider: GitHub
