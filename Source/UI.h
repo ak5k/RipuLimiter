@@ -68,6 +68,7 @@ class UI
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> threshAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> gainAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> linkAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> driveAttachment;
     //[/UserVariables]
 
     //==============================================================================
@@ -75,6 +76,7 @@ class UI
     std::unique_ptr<juce::Slider> gainSlider;
     std::unique_ptr<juce::ToggleButton> linkButton;
     std::unique_ptr<LevelMeter> levelMeter;
+    std::unique_ptr<juce::Slider> driveSlider;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(UI)

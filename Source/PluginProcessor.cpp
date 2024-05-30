@@ -1,5 +1,6 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "SoftClipper.h"
 
 //==============================================================================
 RipuLimiterAudioProcessor::RipuLimiterAudioProcessor()
@@ -36,6 +37,13 @@ juce::AudioProcessorValueTreeState::ParameterLayout RipuLimiterAudioProcessor::c
         auto attributes = AudioParameterFloatAttributes().withLabel(" dB");
         params.push_back(std::make_unique<AudioParameterFloat>(
             "gain", "Gain", juce::NormalisableRange<float>(-24.0f, 0.0f, 0.1f), -0.1f, attributes
+        ));
+    }
+
+    {
+        auto attributes = AudioParameterFloatAttributes().withLabel(" dB");
+        params.push_back(std::make_unique<AudioParameterFloat>(
+            "drive", "Drive", juce::NormalisableRange<float>(0.0f, 24.0f, 0.1f), 0.0f, attributes
         ));
     }
 
@@ -119,10 +127,13 @@ void RipuLimiterAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
 
     thresholdSmoothed.resize(numChannels);
     gainSmoothed.resize(numChannels);
+    driveSmoothed.resize(numChannels);
 
     for (auto& i : thresholdSmoothed)
         i.reset(sampleRate, 0.1);
     for (auto& i : gainSmoothed)
+        i.reset(sampleRate, 0.1);
+    for (auto& i : driveSmoothed)
         i.reset(sampleRate, 0.1);
 
     setLatencySamples(limiters[0].latencySamples());
@@ -167,12 +178,15 @@ void RipuLimiterAudioProcessor::processBlockInternal(juce::AudioBuffer<T>& buffe
 
     auto threshold = juce::Decibels::decibelsToGain(apvts.getRawParameterValue("thresh")->load());
     auto gain = juce::Decibels::decibelsToGain(apvts.getRawParameterValue("gain")->load());
+    auto drive = juce::Decibels::decibelsToGain(apvts.getRawParameterValue("drive")->load());
     bool isLinked = (bool)apvts.getRawParameterValue("link")->load();
 
     for (auto& i : thresholdSmoothed)
         i.setTargetValue(threshold);
     for (auto& i : gainSmoothed)
         i.setTargetValue(gain);
+    for (auto& i : driveSmoothed)
+        i.setTargetValue(drive);
 
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
@@ -181,12 +195,15 @@ void RipuLimiterAudioProcessor::processBlockInternal(juce::AudioBuffer<T>& buffe
         {
             // delayLine.pushSample(channelData[sample], channel);
             // (void)delayLine.popSample(channel);
-
             threshold = thresholdSmoothed[channel].getNextValue();
             gain = gainSmoothed[channel].getNextValue();
+            drive = driveSmoothed[channel].getNextValue();
+
             limiters[channel].setThreshold(threshold);
 
             auto newSample = channelData[sample];
+            if (!approximatelyEqual(drive, 1.0f))
+                newSample = SoftClipper(newSample, static_cast<T>(drive));
             auto val = static_cast<T>(limiters[channel].sample(newSample));
             if (!isLinked)
             {

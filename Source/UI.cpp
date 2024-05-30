@@ -41,14 +41,14 @@ UI::UI(RipuLimiterAudioProcessor& p)
 
     threshSilder->setBounds(80, 152, 191, 104);
 
-    gainSlider.reset(new juce::Slider("gainSlider"));
+    gainSlider.reset(new juce::Slider("gain Slider"));
     addAndMakeVisible(gainSlider.get());
     gainSlider->setRange(-24, 0, 0.1);
     gainSlider->setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
     gainSlider->setTextBoxStyle(juce::Slider::TextBoxRight, false, 80, 20);
     gainSlider->addListener(this);
 
-    gainSlider->setBounds(216, 264, 191, 104);
+    gainSlider->setBounds(136, 264, 191, 104);
 
     linkButton.reset(new juce::ToggleButton("link button"));
     addAndMakeVisible(linkButton.get());
@@ -63,6 +63,15 @@ UI::UI(RipuLimiterAudioProcessor& p)
 
     levelMeter->setBounds(456, 136, 54, 216);
 
+    driveSlider.reset(new juce::Slider("drive Slider"));
+    addAndMakeVisible(driveSlider.get());
+    driveSlider->setRange(0, 24, 0.1);
+    driveSlider->setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
+    driveSlider->setTextBoxStyle(juce::Slider::TextBoxRight, false, 80, 20);
+    driveSlider->addListener(this);
+
+    driveSlider->setBounds(256, 200, 191, 104);
+
     //[UserPreSize]
     threshAttachment.reset(
         new juce::AudioProcessorValueTreeState::SliderAttachment(audioProcessor.getAPVTS(), "thresh", *threshSilder)
@@ -72,6 +81,9 @@ UI::UI(RipuLimiterAudioProcessor& p)
     );
     linkAttachment.reset(
         new juce::AudioProcessorValueTreeState::ButtonAttachment(audioProcessor.getAPVTS(), "link", *linkButton)
+    );
+    driveAttachment.reset(
+        new juce::AudioProcessorValueTreeState::SliderAttachment(audioProcessor.getAPVTS(), "drive", *driveSlider)
     );
     //[/UserPreSize]
 
@@ -88,12 +100,14 @@ UI::~UI()
     threshAttachment = nullptr;
     gainAttachment = nullptr;
     linkAttachment = nullptr;
+    driveAttachment = nullptr;
     //[/Destructor_pre]
 
     threshSilder = nullptr;
     gainSlider = nullptr;
     linkButton = nullptr;
     levelMeter = nullptr;
+    driveSlider = nullptr;
 
     //[Destructor]. You can add your own custom destruction code here..
     //[/Destructor]
@@ -150,6 +164,11 @@ void UI::sliderValueChanged(juce::Slider* sliderThatWasMoved)
             threshSilder.get()->setValue(gainSlider.get()->getValue(), juce::NotificationType::sendNotificationAsync);
         //[/UserSliderCode_gainSlider]
     }
+    else if (sliderThatWasMoved == driveSlider.get())
+    {
+        //[UserSliderCode_driveSlider] -- add your slider handling code here..
+        //[/UserSliderCode_driveSlider]
+    }
 
     //[UsersliderValueChanged_Post]
     //[/UsersliderValueChanged_Post]
@@ -198,8 +217,8 @@ BEGIN_JUCER_METADATA
           max="0.0" int="0.1" style="RotaryHorizontalVerticalDrag" textBoxPos="TextBoxRight"
           textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
           needsCallback="1"/>
-  <SLIDER name="gainSlider" id="63e3749118141a0c" memberName="gainSlider"
-          virtualName="" explicitFocusOrder="0" pos="216 264 191 104" min="-24.0"
+  <SLIDER name="gain Slider" id="63e3749118141a0c" memberName="gainSlider"
+          virtualName="" explicitFocusOrder="0" pos="136 264 191 104" min="-24.0"
           max="0.0" int="0.1" style="RotaryHorizontalVerticalDrag" textBoxPos="TextBoxRight"
           textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
           needsCallback="1"/>
@@ -209,6 +228,11 @@ BEGIN_JUCER_METADATA
   <GENERICCOMPONENT name="level meter" id="45ddf433e27c0af4" memberName="levelMeter"
                     virtualName="" explicitFocusOrder="0" pos="456 136 54 216" class="LevelMeter"
                     params=""/>
+  <SLIDER name="drive Slider" id="8dc48c9564766d07" memberName="driveSlider"
+          virtualName="" explicitFocusOrder="0" pos="256 200 191 104" min="0.0"
+          max="24.0" int="0.1" style="RotaryHorizontalVerticalDrag" textBoxPos="TextBoxRight"
+          textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
+          needsCallback="1"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
