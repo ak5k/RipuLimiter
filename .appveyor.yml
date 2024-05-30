@@ -13,12 +13,12 @@ build_script: |-
 
     REPO_NAME=$(echo $APPVEYOR_REPO_NAME | cut -d'/' -f2)
     TAG=$APPVEYOR_REPO_TAG_NAME
-    OS=$APPVEYOR_BUILD_WORKER_IMAGE
+    WORKER_IMAGE=$APPVEYOR_BUILD_WORKER_IMAGE
     ARCH=$ARCH
 
     # Create the zip file
     cd build-archive
-    zip -r ../"${REPO_NAME}-${TAG}-${OS}-${ARCH}.zip" *
+    zip -r ../"${REPO_NAME}-${TAG}-${WORKER_IMAGE}-${ARCH}.zip" *
 
 for:
   - matrix: { only: [ appveyor_build_worker_image: &linux Ubuntu1804 ] }

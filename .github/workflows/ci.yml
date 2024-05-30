@@ -44,23 +44,6 @@ jobs:
             pkg_mgr: "brew"
           }
         - {
-            name: 'windows x64',
-            os: windows-2022,
-            arch: "x64",
-            cmake_config_flags: "-G Ninja",
-            pluginval_link: "https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_Windows.zip",
-            pluginval_path: "./pluginval.exe",
-            pkg_mgr: "choco",
-            win_clang_prefix: "\\x64"
-          }
-        # - {
-        #     name: 'windows x86',
-        #     os: windows-2022,
-        #     cmake_config_flags: "-G Ninja",
-        #     pkg_mgr: "choco",
-        #     arch: "x86"
-        #   }
-        - {
             name: 'linux x64',
             os: ubuntu-22.04,
             arch: x64,
@@ -68,6 +51,42 @@ jobs:
             pluginval_link: "https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_Linux.zip",
             pluginval_path: "./pluginval",
             pkg_mgr: "sudo apt-get -y",
+          }
+        - {
+            name: 'windows x64',
+            os: windows-2022,
+            cmake_config_flags: "-G Ninja",
+            pluginval_link: "https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_Windows.zip",
+            pluginval_path: "./pluginval.exe",
+            pkg_mgr: "choco",
+            win_clang_prefix: "\\x64",
+            arch: "x64",
+            varsall_arch: "x64"
+          }
+        - {
+            name: 'windows arm64',
+            os: windows-2022,
+            cmake_config_flags: "-G Ninja",
+            pkg_mgr: "choco",
+            win_clang_prefix: "\\x64",
+            arch: "arm64",
+            varsall_arch: "x64_arm64"
+          }
+        - {
+            name: 'windows arm',
+            os: windows-2022,
+            cmake_config_flags: "-G Ninja",
+            pkg_mgr: "choco",
+            arch: "arm",
+            varsall_arch: "x64_arm"
+          }
+        - {
+            name: 'windows x86',
+            os: windows-2022,
+            cmake_config_flags: "-G Ninja",
+            pkg_mgr: "choco",
+            arch: "x86",
+            varsall_arch: "x86"
           }
 
     # Steps run in sequence. Each step runs in its own process in the runner environment and has access to the workspace and filesystem
