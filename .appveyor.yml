@@ -79,18 +79,18 @@ for:
   - matrix: { only: [ appveyor_build_worker_image: macos-mojave ] }
     install:
       - |-
-        # sudo xcode-select -s /Applications/Xcode-10.3.app
-
         curl -fsSLO https://github.com/Kitware/CMake/releases/download/v3.22.6/cmake-3.22.6-macos-universal.tar.gz
         tar xf cmake-3.22.6-macos-universal.tar.gz
         export PATH=$(pwd)/cmake-3.22.6-macos-universal/CMake.app/Contents/bin:$PATH
 
         DEPLOY_TARGET=10.9
-        export SDKROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX10.13.sdk
-        curl -fsSLO https://github.com/phracker/MacOSX-SDKs/releases/download/10.15/MacOSX10.13.sdk.tar.xz
-        echo 608a89db8b4be150a945871230b5ba5d4767a8500bc5fe76ddf10f5cec5ef513 MacOSX10.13.sdk.tar.xz | sha256sum -c
-        sudo tar xf MacOSX10.13.sdk.tar.xz -C /Library/Developer/CommandLineTools/SDKs
-        sudo xcode-select -s /Library/Developer/CommandLineTools
+        # export SDKROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX10.10.sdk
+        # curl -fsSLO https://github.com/phracker/MacOSX-SDKs/releases/download/10.15/MacOSX10.10.sdk.tar.xz
+        # echo 608a89db8b4be150a945871230b5ba5d4767a8500bc5fe76ddf10f5cec5ef513 MacOSX10.10.sdk.tar.xz | sha256sum -c
+        # sudo tar xf MacOSX10.10.sdk.tar.xz -C /Library/Developer/CommandLineTools/SDKs
+        # sudo xcode-select -s /Library/Developer/CommandLineTools
+
+        sudo xcode-select -s /Applications/Xcode-9.4.1.app
 
 
       - |-
@@ -98,7 +98,7 @@ for:
 
     build_script: |-
         cmake -B build -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_OSX_ARCHITECTURES=$ARCH -DCMAKE_OSX_DEPLOYMENT_TARGET=$DEPLOY_TARGET
+        -DCMAKE_OSX_ARCHITECTURES=$ARCH -DCMAKE_OSX_DEPLOYMENT_TARGET=$DEPLOY_TARGET -DMAC_OS_X_VERSION_10_14=1
         cmake --build build
 
     artifacts:
@@ -110,10 +110,10 @@ environment:
   REPO_TAG: $(APPVEYOR_REPO_TAG_NAME)
 
   matrix:
-    - job_name: macOS x86 32-bit
-      appveyor_build_worker_image: macos-mojave
-      worker_os: MacOSX
-      ARCH: i386
+    # - job_name: macOS x86 32-bit
+    #   appveyor_build_worker_image: macos-mojave
+    #   worker_os: MacOSX
+    #   ARCH: i386
     - job_name: Linux ARM 32-bit
       appveyor_build_worker_image: *linux
       worker_os: Linux
