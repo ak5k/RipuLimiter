@@ -8,9 +8,6 @@ on:
     tags:
       - '*'
 
-  # By default, only `opened`, `synchronize`, and `reopened` activity types will trigger the workflow
-  pull_request:
-
   # Manual trigger:
   workflow_dispatch:
 
