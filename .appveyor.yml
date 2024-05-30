@@ -1,23 +1,21 @@
 version: "{build}-{branch}"
 
-build_script: |-
-    cmake -B build -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_OSX_ARCHITECTURES=$ARCH -DCMAKE_OSX_DEPLOYMENT_TARGET=$DEPLOY_TARGET
-    cmake --build build
+after_build:
+  -sh: |- 
+  # Common script that runs after the build script
+  cd build 
+  shopt -s extglob  # Enable bash extended globbing
+  rm -rf build-archive
+  mkdir build-archive
+  mv *_artefacts/Release/@(VST3|AU|AAX)/*.@(vst3|component|aax) build-archive/
 
-    cd build 
-    shopt -s extglob  # Enable bash extended globbing
-    rm -rf build-archive
-    mkdir build-archive
-    mv *_artefacts/Release/@(VST3|AU|AAX)/*.@(vst3|component|aax) build-archive/
+  REPO_NAME=$(echo $APPVEYOR_REPO_NAME | cut -d'/' -f2)
+  TAG=$APPVEYOR_REPO_TAG_NAME
+  ARCH=$ARCH
 
-    REPO_NAME=$(echo $APPVEYOR_REPO_NAME | cut -d'/' -f2)
-    TAG=$APPVEYOR_REPO_TAG_NAME
-    ARCH=$ARCH
-
-    # Create the zip file
-    cd build-archive
-    zip -r ../"${REPO_NAME}-${TAG}-${worker_os}-${ARCH}.zip" *
+  # Create the zip file
+  cd build-archive
+  zip -r ../"${REPO_NAME}-${TAG}-${worker_os}-${ARCH}.zip" *
 
 for:
   - matrix: { only: [ appveyor_build_worker_image: &linux Ubuntu1804 ] }
@@ -70,37 +68,35 @@ for:
                TOOLCHAIN_PREFIX=aarch64-linux-gnu
         ;;
       esac
+
+    build_script: |-
+        cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+        cmake --build build
+
     artifacts:
       - path: build/*.zip
 
-  - matrix: { only: [ appveyor_build_worker_image: macos-catalina,
-                      appveyor_build_worker_image: macos-monterey,
-                      appveyor_build_worker_image: macos-mojave ] }
+  - matrix: { only: [ appveyor_build_worker_image: macos-mojave ] }
     install:
       - |-
-        brew install cmake
+        curl -fsSLO https://github.com/Kitware/CMake/releases/download/v3.22.6/cmake-3.22.6-macos-universal.tar.gz
+        tar xf cmake-3.22.6-macos-universal.tar.gz
+        export PATH=$(pwd)/cmake-3.22.6-macos-universal/CMake.app/Contents/bin:$PATH
 
-        case $ARCH in
-        *arm64*)
-          DEPLOY_TARGET=11.0
-          sudo xcode-select -s /Applications/Xcode-12.3.app
-          ;;
-        *)
-          DEPLOY_TARGET=10.9
-          export SDKROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX10.10.sdk
-          curl -fsSLO https://github.com/phracker/MacOSX-SDKs/releases/download/10.15/MacOSX10.10.sdk.tar.xz
-          echo 608a89db8b4be150a945871230b5ba5d4767a8500bc5fe76ddf10f5cec5ef513 MacOSX10.10.sdk.tar.xz | sha256sum -c
-          sudo tar xf MacOSX10.10.sdk.tar.xz -C /Library/Developer/CommandLineTools/SDKs
-          sudo xcode-select -s /Library/Developer/CommandLineTools
-          ;;
-        esac
-
+        DEPLOY_TARGET=10.9
+        export SDKROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX10.10.sdk
+        curl -fsSLO https://github.com/phracker/MacOSX-SDKs/releases/download/10.15/MacOSX10.10.sdk.tar.xz
+        echo 608a89db8b4be150a945871230b5ba5d4767a8500bc5fe76ddf10f5cec5ef513 MacOSX10.10.sdk.tar.xz | sha256sum -c
+        sudo tar xf MacOSX10.10.sdk.tar.xz -C /Library/Developer/CommandLineTools/SDKs
+        sudo xcode-select -s /Library/Developer/CommandLineTools
 
       - |-
-        if [ "$appveyor_build_worker_image" = "macos-mojave" ]; then
-          # https://letsencrypt.org/docs/dst-root-ca-x3-expiration-september-2021/
-          sudo curl -k https://curl.se/ca/cacert.pem -o /etc/ssl/cert.pem
-        fi
+        sudo curl -k https://curl.se/ca/cacert.pem -o /etc/ssl/cert.pem
+
+    build_script: |-
+        cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_OSX_ARCHITECTURES=$ARCH -DCMAKE_OSX_DEPLOYMENT_TARGET=$DEPLOY_TARGET
+        cmake --build build
 
     artifacts:
       - path: build/*.zip
@@ -111,6 +107,10 @@ environment:
   REPO_TAG: $(APPVEYOR_REPO_TAG_NAME)
 
   matrix:
+    - job_name: macOS x86 32-bit
+      appveyor_build_worker_image: macos-mojave
+      worker_os: MacOSX
+      ARCH: i386
     - job_name: Linux ARM 32-bit
       appveyor_build_worker_image: *linux
       worker_os: Linux
@@ -123,10 +123,6 @@ environment:
       appveyor_build_worker_image: *linux
       worker_os: Linux
       ARCH: aarch64
-    - job_name: macOS x86 32-bit
-      appveyor_build_worker_image: macos-mojave
-      worker_os: MacOSX
-      ARCH: i386
 
 deploy:
   provider: GitHub
