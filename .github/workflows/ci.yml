@@ -207,8 +207,9 @@ jobs:
 
     - name: zip artifacts
       shell: bash
+      working-directory: build/build-${{runner.os}}
       run: |
-        zip "${{steps.filename.outputs.FILENAME}}-${{github.ref_name}}-${{runner.os}}-${{matrix.config.arch}}.zip" build/build-${{runner.os}}/*
+        zip -r ../../"${{steps.filename.outputs.FILENAME}}-${{github.ref_name}}-${{runner.os}}-${{matrix.config.arch}}.zip" *
 
     - name: create draft release
       uses: softprops/action-gh-release@v1
