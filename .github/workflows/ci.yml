@@ -1,0 +1,230 @@
+name: build and validate
+permissions: write-all
+on:
+  # NOTE: Include "[no ci]", "[skip ci]", or "[ci skip]" in the commit message
+  #       to prevent push and pull_request events from triggering workflows.
+
+  push:
+    tags:
+      - '*'
+
+  # Manual trigger:
+  workflow_dispatch:
+
+env:
+  BUILD_TYPE: Release
+  JUCE_TAG: 7.0.12
+  SIGNALSMITH_DSP_TAG: v1.6.0
+  VS_VERSION: 2022
+  STRICTNESS_LEVEL: 10    # Strictness level for pluginval validation
+  TIMEOUT_MS: 60000       # Set pluginval to time out after 1 minute
+  VALIDATE_IN_PROCESS: 1  # Validate in-process plugins
+
+# Jobs run in parallel by default
+jobs:
+  build_and_validate:
+    name: build and validate on ${{matrix.config.name}}
+  
+    runs-on: ${{matrix.config.os}}
+    
+    strategy:
+      # Don't cancel all in-progress jobs if any matrix job fails:
+      fail-fast: false
+      # Define a matrix of job configurations:
+      matrix:
+        config:
+        - { 
+            name: 'macos',
+            os: macos-14,
+            arch: arm64-x86_64,
+            cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_OSX_ARCHITECTURES=arm64\\;x86_64 -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13",
+            pluginval_link: "https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_macOS.zip",
+            pluginval_path: "pluginval.app/Contents/MacOS/pluginval",
+            build_shell: "bash",
+            pkg_mgr: "brew"
+          }
+        - {
+            name: 'windows x64',
+            os: windows-2022,
+            arch: "x64",
+            cmake_config_flags: "-G Ninja",
+            pluginval_link: "https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_Windows.zip",
+            pluginval_path: "./pluginval.exe",
+            pkg_mgr: "choco",
+            win_clang_prefix: "\\x64"
+          }
+        # - {
+        #     name: 'windows x86',
+        #     os: windows-2022,
+        #     cmake_config_flags: "-G Ninja",
+        #     pkg_mgr: "choco",
+        #     arch: "x86"
+        #   }
+        - {
+            name: 'linux x64',
+            os: ubuntu-22.04,
+            arch: x64,
+            cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++",
+            pluginval_link: "https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_Linux.zip",
+            pluginval_path: "./pluginval",
+            pkg_mgr: "sudo apt-get -y",
+          }
+
+    # Steps run in sequence. Each step runs in its own process in the runner environment and has access to the workspace and filesystem
+    # NB! Because steps run in their own process, changes to environment variables are not preserved between steps
+    steps:
+    - name: checkout code 
+      uses: actions/checkout@v4
+
+    - name: install linux dependencies
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get remove -y needrestart || true
+        sudo apt-get -y autoremove
+        # echo "deb http://gb.archive.ubuntu.com/ubuntu jammy main" | sudo tee -a /etc/apt/sources.list
+        # sudo apt-get update -y
+        # sudo apt-get install -y libwebkit2gtk-4.0-dev
+        # sudo sed -i '$ d' /etc/apt/sources.list
+        #
+        sudo apt-get update -y
+        sudo apt-get install -y libwebkit2gtk-*-dev
+        sudo apt-get install -y \
+          ninja-build \
+          libasound2-dev libjack-jackd2-dev \
+          ladspa-sdk \
+          libcurl4-openssl-dev  \
+          libfreetype6-dev \
+          libx11-dev libxcomposite-dev libxcursor-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev \
+          libglu1-mesa-dev mesa-common-dev
+
+    # Use the ccache compiler cache to speed up builds
+    # Note: ccache does not support Windows
+    - name: enable ccache
+      if: runner.os != 'Windows'
+      uses: hendrikmuhs/ccache-action@v1
+      with:
+        key: ${{ matrix.config.os }}-${{ env.BUILD_TYPE }}
+
+    # Set up the dependency cache to be updated for every new commit
+    # We include the CMake generator name in the cache key. This helps avoiding cache conflicts when switching generators
+    - name: cache build artifacts
+      uses: actions/cache@v4
+      with:
+        path: |
+          Libs
+          build
+        # key: ${{ matrix.config.os }}-${{ matrix.config.name }}-${{env.JUCE_TAG}}-build-${{ hashFiles('**/CMakeLists.txt') }}
+        # restore-keys: ${{ matrix.config.os }}-${{ matrix.config.name }}-${{env.JUCE_TAG}}-build-${{ hashFiles('**/CMakeLists.txt') }}
+        key: ${{ matrix.config.os }}-${{ matrix.config.name }}-juce${{env.JUCE_TAG}}
+
+    - name: install ninja
+      if: runner.os != 'Linux'
+      run: |
+        ${{matrix.config.pkg_mgr}} install ninja
+
+    - name: configure cmake unix-like
+      if: runner.os != 'Windows'
+      run: |
+        cmake -B build ${{matrix.config.cmake_config_flags}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+    - name: configure cmake windows
+      if: runner.os == 'Windows'
+      shell: cmd    
+      run: |
+        call "%ProgramFiles%\Microsoft Visual Studio\${{env.VS_VERSION}}\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" ${{matrix.config.arch}}
+        cmake -B build ${{matrix.config.cmake_config_flags}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ^
+        -DCMAKE_C_COMPILER="%ProgramFiles%\\Microsoft Visual Studio\\${{env.VS_VERSION}}\\Enterprise\\VC\\Tools\\Llvm${{matrix.config.win_clang_prefix}}\\bin\\clang.exe" ^
+        -DCMAKE_CXX_COMPILER="%ProgramFiles%\\Microsoft Visual Studio\\${{env.VS_VERSION}}\\Enterprise\\VC\\Tools\\Llvm${{matrix.config.win_clang_prefix}}\\bin\\clang.exe" 
+
+    - name: set permissions macos
+      if: runner.os == 'macOS'
+      run: |
+        sudo chown -R $(whoami) /Library/Audio/Plug-Ins/
+        sudo chmod -R 777 /Library/Audio/Plug-Ins/
+
+    - name: build unix-like
+      if: runner.os != 'Windows'
+      run: |
+        cmake --build build ${{matrix.config.cmake_build_flags}}
+
+    - name: build windows
+      if: runner.os == 'Windows'
+      shell: cmd    
+      run: |
+        call "%ProgramFiles%\Microsoft Visual Studio\${{env.VS_VERSION}}\Enterprise\VC\Auxiliary\build\vcvarsall.bat" ${{matrix.config.arch}}
+        cmake --build build ${{matrix.config.cmake_build_flags}}
+
+
+    # Note: I was unable to get AU validation with pluginval 1.0.x working on a GitHub Actions runner even when copying the plugin to `/Library/Audio/Plug-ins/Components`.
+    #       Needs further investigation.
+    # Details (issue now closed): https://github.com/Tracktion/pluginval/issues/39
+    - name: validate au macos
+      if: matrix.config.name == 'macos'
+      shell: bash
+      working-directory: build
+      run: |
+        curl -LsS ${{ matrix.config.pluginval_link }} -o pluginval.zip
+        unzip -o -q pluginval
+        ${{matrix.config.pluginval_path}} --validate *_artefacts/${{ env.BUILD_TYPE }}/VST3/*.vst3
+
+    - name: validate vst3 windows
+      if: matrix.config.name == 'windows x64'
+      shell: pwsh
+      working-directory: build
+      env:
+        SKIP_GUI_TESTS: 1
+      run: |
+        Invoke-WebRequest -Uri ${{ matrix.config.pluginval_link }} -OutFile pluginval.zip
+        Expand-Archive -Path pluginval.zip -DestinationPath . -Force
+        Get-ChildItem -Path "*_artefacts/${{ env.BUILD_TYPE }}/VST3/*" -Filter "*.vst3" | ForEach-Object { & ${{matrix.config.pluginval_path}} --validate $_.FullName }
+
+    - name: validate vst3 linux
+      if: matrix.config.name == 'linux x64'
+      shell: bash
+      working-directory: build
+      env:
+        SKIP_GUI_TESTS: 1
+      run: |
+        curl -LsS ${{ matrix.config.pluginval_link }} -o pluginval.zip
+        unzip -q -o pluginval
+        ${{ matrix.config.pluginval_path }} --validate *_artefacts/${{ env.BUILD_TYPE }}/VST3/*.vst3
+
+    - name: prepare build artifacts
+      shell: bash
+      working-directory: build
+      run: |
+        shopt -s extglob  # Enable bash extended globbing
+        rm -rf build-${{runner.os}}
+        mkdir build-${{runner.os}}
+        mv *_artefacts/${{ env.BUILD_TYPE }}/@(VST3|AU|AAX)/*.@(vst3|component|aax) build-${{runner.os}}/
+    
+    - name: set filename
+      id: filename
+      shell: bash
+      run:  |
+        echo "FILENAME=$(echo ${{ github.repository }} | cut -d'/' -f2)" >> "$GITHUB_OUTPUT"
+
+    - name: zip artifacts
+      if: runner.os != 'Windows'
+      shell: bash
+      working-directory: build/build-${{runner.os}}
+      run: |
+        zip -r ../../"${{steps.filename.outputs.FILENAME}}-${{github.ref_name}}-${{runner.os}}-${{matrix.config.arch}}.zip" *
+
+    - name: zip artifacts windows
+      if: runner.os == 'Windows'
+      working-directory: build/build-${{runner.os}}
+      run: |
+        Compress-Archive -Path ./* -Destination ../../"${{steps.filename.outputs.FILENAME}}-${{github.ref_name}}-${{runner.os}}-${{matrix.config.arch}}.zip"
+
+    - name: create draft release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: "${{steps.filename.outputs.FILENAME}}-${{github.ref_name}}-${{runner.os}}-${{matrix.config.arch}}.zip"
+        draft: true
+
+    - name: archive build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: "${{steps.filename.outputs.FILENAME}}-${{github.ref_name}}-${{runner.os}}-${{matrix.config.arch}}.zip"
+        path: build/build-${{runner.os}}/
