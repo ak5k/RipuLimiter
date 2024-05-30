@@ -79,6 +79,8 @@ for:
   - matrix: { only: [ appveyor_build_worker_image: macos-mojave ] }
     install:
       - |-
+        sudo xcode-select -s /Applications/Xcode-10.3.app:
+
         curl -fsSLO https://github.com/Kitware/CMake/releases/download/v3.22.6/cmake-3.22.6-macos-universal.tar.gz
         tar xf cmake-3.22.6-macos-universal.tar.gz
         export PATH=$(pwd)/cmake-3.22.6-macos-universal/CMake.app/Contents/bin:$PATH
@@ -90,7 +92,6 @@ for:
         # sudo tar xf MacOSX10.14.sdk.tar.xz -C /Library/Developer/CommandLineTools/SDKs
         # sudo xcode-select -s /Library/Developer/CommandLineTools
 
-        sudo xcode-select -s /Applications/Xcode-10.3.app:
 
       - |-
         sudo curl -k https://curl.se/ca/cacert.pem -o /etc/ssl/cert.pem
