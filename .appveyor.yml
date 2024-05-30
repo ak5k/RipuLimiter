@@ -9,7 +9,7 @@ build_script: |-
     shopt -s extglob  # Enable bash extended globbing
     rm -rf build-archive
     mkdir build-archive
-    mv *_artefacts/${{ env.BUILD_TYPE }}/@(VST3|AU|AAX)/*.@(vst3|component|aax) build-archive/
+    mv *_artefacts/Release/@(VST3|AU|AAX)/*.@(vst3|component|aax) build-archive/
 
     REPO_NAME=$(echo $APPVEYOR_REPO_NAME | cut -d'/' -f2)
     TAG=$APPVEYOR_REPO_TAG_NAME
