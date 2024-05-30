@@ -91,8 +91,8 @@ struct LimiterAttackHoldRelease
         for (auto& release : releases)
             movingMin = release.step(movingMin);
         double releaseEnvelope = movingMin;
-        return releaseEnvelope;
-        // return smoother(releaseEnvelope);
+        // return releaseEnvelope;
+        return smoother(releaseEnvelope);
     }
 
     double sample(double v)
