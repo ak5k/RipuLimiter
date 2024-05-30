@@ -71,6 +71,8 @@ for:
           ;;
         esac
 
+        brew install cmake
+
       - |-
         if [ "$appveyor_build_worker_image" = "macos-mojave" ]; then
           # https://letsencrypt.org/docs/dst-root-ca-x3-expiration-september-2021/
