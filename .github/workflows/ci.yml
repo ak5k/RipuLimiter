@@ -206,10 +206,16 @@ jobs:
         echo "FILENAME=$(echo ${{ github.repository }} | cut -d'/' -f2)" >> "$GITHUB_OUTPUT"
 
     - name: zip artifacts
+      if: runner.os != 'Windows'
       shell: bash
       working-directory: build/build-${{runner.os}}
       run: |
         zip -r ../../"${{steps.filename.outputs.FILENAME}}-${{github.ref_name}}-${{runner.os}}-${{matrix.config.arch}}.zip" *
+
+    - if: runner.os == 'Windows'
+      working-directory: build/build-${{runner.os}}
+      run: |
+        Compress-Archive -Path ./* -Destination ../../"${{steps.filename.outputs.FILENAME}}-${{github.ref_name}}-${{runner.os}}-${{matrix.config.arch}}.zip"
 
     - name: create draft release
       uses: softprops/action-gh-release@v2
