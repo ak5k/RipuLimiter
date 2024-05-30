@@ -4,6 +4,7 @@ build_script: |-
     cmake -B build -DCMAKE_BUILD_TYPE=Release
     -DCMAKE_OSX_ARCHITECTURES=$ARCH -DCMAKE_OSX_DEPLOYMENT_TARGET=$DEPLOY_TARGET
     cmake --build build
+
     cd build 
     shopt -s extglob  # Enable bash extended globbing
     rm -rf build-archive
@@ -16,7 +17,8 @@ build_script: |-
     ARCH=$ARCH
 
     # Create the zip file
-    zip -r "${REPO_NAME}-${TAG}-${OS}-${ARCH}.zip" build-archive   
+    cd build-archive
+    zip -r ../"${REPO_NAME}-${TAG}-${OS}-${ARCH}.zip" *
 
 for:
   - matrix: { only: [ appveyor_build_worker_image: &linux Ubuntu1804 ] }
