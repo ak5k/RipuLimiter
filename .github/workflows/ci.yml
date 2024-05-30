@@ -33,16 +33,16 @@ jobs:
       # Define a matrix of job configurations:
       matrix:
         config:
-        - { 
-            name: 'macos',
-            os: macos-14,
-            arch: arm64-x86_64,
-            cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_OSX_ARCHITECTURES=arm64\\;x86_64 -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13",
-            pluginval_link: "https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_macOS.zip",
-            pluginval_path: "pluginval.app/Contents/MacOS/pluginval",
-            build_shell: "bash",
-            pkg_mgr: "brew"
-          }
+        # - { 
+        #     name: 'macos',
+        #     os: macos-14,
+        #     arch: arm64-x86_64,
+        #     cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_OSX_ARCHITECTURES=arm64\\;x86_64 -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13",
+        #     pluginval_link: "https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_macOS.zip",
+        #     pluginval_path: "pluginval.app/Contents/MacOS/pluginval",
+        #     build_shell: "bash",
+        #     pkg_mgr: "brew"
+        #   }
         - {
             name: 'windows x64',
             os: windows-2022,
@@ -60,15 +60,15 @@ jobs:
         #     pkg_mgr: "choco",
         #     arch: "x86"
         #   }
-        - {
-            name: 'linux x64',
-            os: ubuntu-22.04,
-            arch: x64,
-            cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++",
-            pluginval_link: "https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_Linux.zip",
-            pluginval_path: "./pluginval",
-            pkg_mgr: "sudo apt-get -y",
-          }
+        # - {
+        #     name: 'linux x64',
+        #     os: ubuntu-22.04,
+        #     arch: x64,
+        #     cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++",
+        #     pluginval_link: "https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_Linux.zip",
+        #     pluginval_path: "./pluginval",
+        #     pkg_mgr: "sudo apt-get -y",
+        #   }
 
     # Steps run in sequence. Each step runs in its own process in the runner environment and has access to the workspace and filesystem
     # NB! Because steps run in their own process, changes to environment variables are not preserved between steps
@@ -121,6 +121,7 @@ jobs:
       if: runner.os != 'Linux'
       run: |
         ${{matrix.config.pkg_mgr}} install ninja
+        ${{matrix.config.pkg_mgr}} install zip
 
     - name: configure cmake unix-like
       if: runner.os != 'Windows'
@@ -205,17 +206,16 @@ jobs:
         echo "FILENAME=$(echo ${{ github.repository }} | cut -d'/' -f2)" >> "$GITHUB_OUTPUT"
 
     - name: zip artifacts
-      if: runner.os != 'Windows'
       shell: bash
       working-directory: build/build-${{runner.os}}
       run: |
         zip -r ../../"${{steps.filename.outputs.FILENAME}}-${{github.ref_name}}-${{runner.os}}-${{matrix.config.arch}}.zip" *
 
-    - name: zip artifacts windows
-      if: runner.os == 'Windows'
-      working-directory: build/build-${{runner.os}}
-      run: |
-        Compress-Archive -Path ./* -Destination ../../"${{steps.filename.outputs.FILENAME}}-${{github.ref_name}}-${{runner.os}}-${{matrix.config.arch}}.zip"
+    # - name: zip artifacts windows
+    #   if: runner.os == 'Windows'
+    #   working-directory: build/build-${{runner.os}}
+    #   run: |
+    #     Compress-Archive -Path ./* -Destination ../../"${{steps.filename.outputs.FILENAME}}-${{github.ref_name}}-${{runner.os}}-${{matrix.config.arch}}.zip"
 
     - name: create draft release
       uses: softprops/action-gh-release@v2
