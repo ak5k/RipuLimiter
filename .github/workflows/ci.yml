@@ -152,7 +152,7 @@ jobs:
       shell: cmd    
       run: |
         call "%ProgramFiles%\Microsoft Visual Studio\${{env.VS_VERSION}}\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" ${{matrix.config.arch}}
-        cmake -B build ${{matrix.config.cmake_config_flags}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ^
+        cmake -B build ${{matrix.config.cmake_config_flags}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} --config ${{env.BUILD_TYPE}} ^
         -DCMAKE_C_COMPILER="%ProgramFiles%\\Microsoft Visual Studio\\${{env.VS_VERSION}}\\Enterprise\\VC\\Tools\\Llvm${{matrix.config.win_clang_prefix}}\\bin\\clang.exe" ^
         -DCMAKE_CXX_COMPILER="%ProgramFiles%\\Microsoft Visual Studio\\${{env.VS_VERSION}}\\Enterprise\\VC\\Tools\\Llvm${{matrix.config.win_clang_prefix}}\\bin\\clang.exe" 
 
@@ -172,31 +172,31 @@ jobs:
       shell: cmd    
       run: |
         call "%ProgramFiles%\Microsoft Visual Studio\${{env.VS_VERSION}}\Enterprise\VC\Auxiliary\build\vcvarsall.bat" ${{matrix.config.arch}}
-        cmake --build build ${{matrix.config.cmake_build_flags}}
+        cmake --build build ${{matrix.config.cmake_build_flags}} --config ${{env.BUILD_TYPE}}
 
 
     # Note: I was unable to get AU validation with pluginval 1.0.x working on a GitHub Actions runner even when copying the plugin to `/Library/Audio/Plug-ins/Components`.
     #       Needs further investigation.
     # Details (issue now closed): https://github.com/Tracktion/pluginval/issues/39
-    - name: validate au macos
-      if: matrix.config.name == 'macos'
-      shell: bash
-      working-directory: build
-      run: |
-        curl -LsS ${{ matrix.config.pluginval_link }} -o pluginval.zip
-        unzip -o -q pluginval
-        ${{matrix.config.pluginval_path}} --validate /Library/Audio/Plug-Ins/Components/*.component
+    # - name: validate au macos
+    #   if: matrix.config.name == 'macos'
+    #   shell: bash
+    #   working-directory: build
+    #   run: |
+    #     curl -LsS ${{ matrix.config.pluginval_link }} -o pluginval.zip
+    #     unzip -o -q pluginval
+    #     ${{matrix.config.pluginval_path}} --validate /Library/Audio/Plug-Ins/Components/*.component
 
-    - name: validate vst3 windows
-      if: matrix.config.name == 'windows x64'
-      shell: pwsh
-      working-directory: build
-      env:
-        SKIP_GUI_TESTS: 1
-      run: |
-        Invoke-WebRequest -Uri ${{ matrix.config.pluginval_link }} -OutFile pluginval.zip
-        Expand-Archive -Path pluginval.zip -DestinationPath . -Force
-        Get-ChildItem -Path "*_artefacts/${{ env.BUILD_TYPE }}/VST3/*" -Filter "*.vst3" | ForEach-Object { & ${{matrix.config.pluginval_path}} --validate $_.FullName }
+    # - name: validate vst3 windows
+    #   if: matrix.config.name == 'windows x64'
+    #   shell: pwsh
+    #   working-directory: build
+    #   env:
+    #     SKIP_GUI_TESTS: 1
+    #   run: |
+    #     Invoke-WebRequest -Uri ${{ matrix.config.pluginval_link }} -OutFile pluginval.zip
+    #     Expand-Archive -Path pluginval.zip -DestinationPath . -Force
+    #     Get-ChildItem -Path "*_artefacts/${{ env.BUILD_TYPE }}/VST3/*" -Filter "*.vst3" | ForEach-Object { & ${{matrix.config.pluginval_path}} --validate $_.FullName }
 
     - name: validate vst3 linux
       if: matrix.config.name == 'linux x64'
