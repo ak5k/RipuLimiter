@@ -151,7 +151,7 @@ jobs:
       if: runner.os == 'Windows'
       shell: cmd    
       run: |
-        call "%ProgramFiles%\Microsoft Visual Studio\${{env.VS_VERSION}}\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" ${{matrix.config.arch}}
+        call "%ProgramFiles%\Microsoft Visual Studio\${{env.VS_VERSION}}\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" ${{matrix.config.varsall_arch}}
         cmake -B build ${{matrix.config.cmake_config_flags}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ^
         -DCMAKE_C_COMPILER="%ProgramFiles%\\Microsoft Visual Studio\\${{env.VS_VERSION}}\\Enterprise\\VC\\Tools\\Llvm${{matrix.config.win_clang_prefix}}\\bin\\clang.exe" ^
         -DCMAKE_CXX_COMPILER="%ProgramFiles%\\Microsoft Visual Studio\\${{env.VS_VERSION}}\\Enterprise\\VC\\Tools\\Llvm${{matrix.config.win_clang_prefix}}\\bin\\clang.exe" 
