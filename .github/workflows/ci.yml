@@ -33,16 +33,16 @@ jobs:
       # Define a matrix of job configurations:
       matrix:
         config:
-        # - { 
-        #     name: 'macos',
-        #     os: macos-14,
-        #     arch: arm64-x86_64,
-        #     cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_OSX_ARCHITECTURES=arm64\\;x86_64 -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13",
-        #     pluginval_link: "https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_macOS.zip",
-        #     pluginval_path: "pluginval.app/Contents/MacOS/pluginval",
-        #     build_shell: "bash",
-        #     pkg_mgr: "brew"
-        #   }
+        - { 
+            name: 'macos',
+            os: macos-14,
+            arch: arm64-x86_64,
+            cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_OSX_ARCHITECTURES=arm64\\;x86_64 -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13",
+            pluginval_link: "https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_macOS.zip",
+            pluginval_path: "pluginval.app/Contents/MacOS/pluginval",
+            build_shell: "bash",
+            pkg_mgr: "brew"
+          }
         - {
             name: 'windows x64',
             os: windows-2022,
@@ -60,15 +60,15 @@ jobs:
         #     pkg_mgr: "choco",
         #     arch: "x86"
         #   }
-        # - {
-        #     name: 'linux x64',
-        #     os: ubuntu-22.04,
-        #     arch: x64,
-        #     cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++",
-        #     pluginval_link: "https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_Linux.zip",
-        #     pluginval_path: "./pluginval",
-        #     pkg_mgr: "sudo apt-get -y",
-        #   }
+        - {
+            name: 'linux x64',
+            os: ubuntu-22.04,
+            arch: x64,
+            cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++",
+            pluginval_link: "https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_Linux.zip",
+            pluginval_path: "./pluginval",
+            pkg_mgr: "sudo apt-get -y",
+          }
 
     # Steps run in sequence. Each step runs in its own process in the runner environment and has access to the workspace and filesystem
     # NB! Because steps run in their own process, changes to environment variables are not preserved between steps
@@ -117,7 +117,7 @@ jobs:
         # restore-keys: ${{ matrix.config.os }}-${{ matrix.config.name }}-${{env.JUCE_TAG}}-build-${{ hashFiles('**/CMakeLists.txt') }}
         key: ${{ matrix.config.os }}-${{ matrix.config.name }}-juce${{env.JUCE_TAG}}
 
-    - name: install ninja
+    - name: install packages
       if: runner.os != 'Linux'
       run: |
         ${{matrix.config.pkg_mgr}} install ninja
@@ -166,7 +166,7 @@ jobs:
       run: |
         curl -LsS ${{ matrix.config.pluginval_link }} -o pluginval.zip
         unzip -o -q pluginval
-        ${{matrix.config.pluginval_path}} --validate *_artefacts/${{ env.BUILD_TYPE }}/VST3/*.vst3
+        ${{matrix.config.pluginval_path}} --validate /Library/Audio/Plug-Ins/Components/*.component
 
     - name: validate vst3 windows
       if: matrix.config.name == 'windows x64'
@@ -210,12 +210,6 @@ jobs:
       working-directory: build/build-${{runner.os}}
       run: |
         zip -r ../../"${{steps.filename.outputs.FILENAME}}-${{github.ref_name}}-${{runner.os}}-${{matrix.config.arch}}.zip" *
-
-    # - name: zip artifacts windows
-    #   if: runner.os == 'Windows'
-    #   working-directory: build/build-${{runner.os}}
-    #   run: |
-    #     Compress-Archive -Path ./* -Destination ../../"${{steps.filename.outputs.FILENAME}}-${{github.ref_name}}-${{runner.os}}-${{matrix.config.arch}}.zip"
 
     - name: create draft release
       uses: softprops/action-gh-release@v2

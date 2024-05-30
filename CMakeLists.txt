@@ -133,6 +133,7 @@ juce_add_plugin("${PROJECT_NAME}"
                                                 # kAudioUnitType_MIDIProcessor, kAudioUnitType_Mixer, kAudioUnitType_MusicDevice,
                                                 # kAudioUnitType_MusicEffect, kAudioUnitType_OfflineEffect, kAudioUnitType_Output,
                                                 # kAudioUnitType_Panner
+    AU_COPY_DIR "/Library/Audio/Plug-Ins/Components" # The subdirectory to copy the AU plugin into (macOS only)
 
     COPY_PLUGIN_AFTER_BUILD TRUE)               # Should the plugin be installed to a default location after building?
                                                 # NOTE: Writing to the default install locations might require administrator privileges on Windows.
