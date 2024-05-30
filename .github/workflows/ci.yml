@@ -212,7 +212,8 @@ jobs:
       run: |
         zip -r ../../"${{steps.filename.outputs.FILENAME}}-${{github.ref_name}}-${{runner.os}}-${{matrix.config.arch}}.zip" *
 
-    - if: runner.os == 'Windows'
+    - name: zip artifacts windows
+      if: runner.os == 'Windows'
       working-directory: build/build-${{runner.os}}
       run: |
         Compress-Archive -Path ./* -Destination ../../"${{steps.filename.outputs.FILENAME}}-${{github.ref_name}}-${{runner.os}}-${{matrix.config.arch}}.zip"
