@@ -13,12 +13,11 @@ build_script: |-
 
     REPO_NAME=$(echo $APPVEYOR_REPO_NAME | cut -d'/' -f2)
     TAG=$APPVEYOR_REPO_TAG_NAME
-    WORKER_IMAGE=$APPVEYOR_BUILD_WORKER_IMAGE
     ARCH=$ARCH
 
     # Create the zip file
     cd build-archive
-    zip -r ../"${REPO_NAME}-${TAG}-${WORKER_IMAGE}-${ARCH}.zip" *
+    zip -r ../"${REPO_NAME}-${TAG}-${worker_os}-${ARCH}.zip" *
 
 for:
   - matrix: { only: [ appveyor_build_worker_image: &linux Ubuntu1804 ] }
@@ -114,15 +113,19 @@ environment:
   matrix:
     - job_name: Linux ARM 32-bit
       appveyor_build_worker_image: *linux
+      worker_os: Linux
       ARCH: armv7l
     - job_name: Linux x86 32-bit
       appveyor_build_worker_image: *linux
+      worker_os: Linux
       ARCH: i686
     - job_name: Linux ARM 64-bit
       appveyor_build_worker_image: *linux
+      worker_os: Linux
       ARCH: aarch64
     - job_name: macOS x86 32-bit
       appveyor_build_worker_image: macos-mojave
+      worker_os: MacOSX
       ARCH: i386
 
 deploy:
