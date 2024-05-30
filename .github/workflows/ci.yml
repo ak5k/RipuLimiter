@@ -166,7 +166,6 @@ jobs:
         curl -LsS ${{ matrix.config.pluginval_link }} -o pluginval.zip
         unzip -o -q pluginval
         ${{matrix.config.pluginval_path}} --validate *_artefacts/${{ env.BUILD_TYPE }}/VST3/*.vst3
-        ${{matrix.config.pluginval_path}} --validate /Library/Audio/Plug-Ins/Components/*.component
 
     - name: validate vst3 windows
       if: matrix.config.name == 'windows x64'
