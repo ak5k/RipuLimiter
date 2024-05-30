@@ -18,7 +18,7 @@ static T sign(T num)
 }
 
 template <typename T>
-T SoftClipper(T x, T drive, T knee = 2)
+T SoftClipper(T x, T drive, T knee)
 {
     // x *= drive;
     // if (x < -1)
@@ -63,7 +63,7 @@ T SoftClipper(T x, T drive, T knee = 2)
     // auto overdb0 = 2.08136898 * log(abs0) * log2db - ceildb;
     auto overdb0 = juce::Decibels::gainToDecibels(MAGIC_NUMBER * std::log(abs0)) - ceildb;
     // abs0 > scv ? (spl0 = sign0 * (scv + exp(overdb0 * scmult) * db2log););
-    if (abs0 > scv)
+    if (!(approximatelyEqual(knee, (T)0)) && abs0 > scv)
         spl0 =
             sign0 * static_cast<T>(
                         juce::Decibels::decibelsToGain(juce::dsp::FastMathApproximations::exp(overdb0 * scmult) + scv)

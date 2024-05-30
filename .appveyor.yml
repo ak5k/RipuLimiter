@@ -1,0 +1,111 @@
+version: "{build}-{branch}"
+
+build_script:
+  - cmake -B build -DCMAKE_BUILD_TYPE=Release
+    -DCMAKE_OSX_ARCHITECTURES=$ARCH -DCMAKE_OSX_DEPLOYMENT_TARGET=$DEPLOY_TARGET
+  - cmake --build build
+  - cd build 
+
+for:
+  - matrix: { only: [ appveyor_build_worker_image: &linux Ubuntu1804 ] }
+    install: |-
+      # set -e
+
+      sudo sed -i '/arch=/! s/^deb/deb [arch=amd64,i386]/' /etc/apt/sources.list
+
+      install-deps() {
+        # sudo add-apt-repository --remove "deb http://apt.postgresql.org/pub/repos/apt/ bionic-pgdg main"
+        local arch="$1"; shift
+        local native=("$@" php-cli qemu-user-binfmt )
+        local target=()
+
+        sudo dpkg --add-architecture $arch
+        sudo apt-get update -qq
+        sudo apt-get install -qq aptitude > /dev/null
+        sudo aptitude install -yR ${native[@]} ${target[@]/%/:$arch} > /dev/null
+      }
+      
+      sudo update-alternatives --set gcc /usr/bin/gcc-7
+      sudo apt-get install -qq --allow-downgrades libstdc++6=8.4.0-1ubuntu1~18.04 > /dev/null
+
+      case $ARCH in
+      x86_64)
+        install-deps amd64
+        ;;
+      i686)
+        install-deps i386 g++-multilib
+        export TOOLCHAIN=$(pwd)/cmake/linux-cross.cmake \
+               TOOLCHAIN_PREFIX=i386-linux-gnu
+        ;;
+      armv7l)
+        install-deps armhf g++-arm-linux-gnueabihf
+        export TOOLCHAIN=$(pwd)/cmake/linux-cross.cmake \
+               TOOLCHAIN_PREFIX=arm-linux-gnueabihf
+        ;;
+      aarch64)
+        install-deps arm64 g++-aarch64-linux-gnu
+        export TOOLCHAIN=$(pwd)/cmake/linux-cross.cmake \
+               TOOLCHAIN_PREFIX=aarch64-linux-gnu
+        ;;
+      esac
+    artifacts:
+      - path: build/reaper_*.so
+
+  - matrix: { only: [ appveyor_build_worker_image: macos-catalina,
+                      appveyor_build_worker_image: macos-monterey,
+                      appveyor_build_worker_image: macos-mojave ] }
+    install:
+      - |-
+        case $ARCH in
+        *arm64*)
+          DEPLOY_TARGET=11.0
+          sudo xcode-select -s /Applications/Xcode-12.3.app
+          ;;
+        *)
+          DEPLOY_TARGET=10.9
+          export SDKROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX10.10.sdk
+          curl -fsSLO https://github.com/phracker/MacOSX-SDKs/releases/download/10.15/MacOSX10.10.sdk.tar.xz
+          echo 608a89db8b4be150a945871230b5ba5d4767a8500bc5fe76ddf10f5cec5ef513 MacOSX10.10.sdk.tar.xz | sha256sum -c
+          sudo tar xf MacOSX10.10.sdk.tar.xz -C /Library/Developer/CommandLineTools/SDKs
+          sudo xcode-select -s /Library/Developer/CommandLineTools
+          ;;
+        esac
+
+      - |-
+        if [ "$appveyor_build_worker_image" = "macos-mojave" ]; then
+          # https://letsencrypt.org/docs/dst-root-ca-x3-expiration-september-2021/
+          sudo curl -k https://curl.se/ca/cacert.pem -o /etc/ssl/cert.pem
+        fi
+
+    artifacts:
+      - path: build/*.zip
+
+environment:
+  BUILD_NUMBER: $(APPVEYOR_BUILD_NUMBER)
+  REPO_COMMIT: $(APPVEYOR_REPO_COMMIT)
+  REPO_TAG: $(APPVEYOR_REPO_TAG_NAME)
+
+  matrix:
+    - job_name: macOS x86 32-bit
+      appveyor_build_worker_image: macos-mojave
+      ARCH: i386
+    - job_name: Linux ARM 32-bit
+      appveyor_build_worker_image: *linux
+      ARCH: armv7l
+    - job_name: Linux x86 32-bit
+      appveyor_build_worker_image: *linux
+      ARCH: i686
+    - job_name: Linux ARM 64-bit
+      appveyor_build_worker_image: *linux
+      ARCH: aarch64
+
+deploy:
+  provider: GitHub
+  draft: true
+  description: ''
+  force_update: true
+  auth_token:
+    secure: Rk8do2Q/etdabjwIABBRdTJu1a4wYVu9Ltz8HJuC0wc3rz+hHUMGa3N7vTlsrd7z
+  artifact: /.*\.(dll|dylib|so|lua|exe|pkg|pdb)/
+  on:
+    APPVEYOR_REPO_TAG: true

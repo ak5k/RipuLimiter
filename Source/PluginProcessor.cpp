@@ -50,7 +50,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout RipuLimiterAudioProcessor::c
     {
         auto attributes = AudioParameterFloatAttributes().withLabel(" dB");
         params.push_back(std::make_unique<AudioParameterFloat>(
-            "knee", "Knee", juce::NormalisableRange<float>(0.0f, 6.0f, 0.1f), 2.0f, attributes
+            "knee", "Knee", juce::NormalisableRange<float>(0.0f, 6.0f, 0.1f), 0.0f, attributes
         ));
     }
 
@@ -147,15 +147,28 @@ void RipuLimiterAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
     for (auto& i : kneeSmoothed)
         i.reset(sampleRate, 0.1);
 
-    delayLine.prepare({sampleRate, (uint32_t)limiters[0].latencySamples(), (uint32_t)numChannels});
-
-    juce::dsp::ProcessSpec spec{sampleRate, static_cast<juce::uint32>(samplesPerBlock), 4};
-    oversampling.initProcessing(static_cast<size_t>(samplesPerBlock));
-    oversampling.reset();
+    oversampling.reset(new juce::dsp::Oversampling<double>(
+        numChannels, 4, juce::dsp::Oversampling<double>::filterHalfBandPolyphaseIIR, true
+    ));
+    oversampling.get()->initProcessing(samplesPerBlock);
 
     tempBufferDouble.setSize(numChannels, samplesPerBlock);
 
-    setLatencySamples(limiters[0].latencySamples());
+    delayLine.prepare(
+        {sampleRate,
+         (uint32_t)(limiters[0].latencySamples() + oversampling.get()->getLatencyInSamples()),
+         (uint32_t)numChannels}
+    );
+
+    bool isOversampled = (bool)apvts.getRawParameterValue("oversample")->load();
+    if (isOversampled)
+        setLatencySamples(limiters[0].latencySamples() + oversampling.get()->getLatencyInSamples());
+    else
+        setLatencySamples(limiters[0].latencySamples());
+
+    delayLine.setMaximumDelayInSamples(getLatencySamples());
+    delayLine.setDelay(getLatencySamples());
+    delayLine.reset();
 }
 
 void RipuLimiterAudioProcessor::releaseResources()
@@ -188,8 +201,6 @@ void RipuLimiterAudioProcessor::processBlockInternal(juce::AudioBuffer<T>& buffe
     auto totalNumInputChannels = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-    gainReduction.store(1.0f, std::memory_order_release);
-
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         bufferIn.clear(i, 0, bufferIn.getNumSamples());
 
@@ -210,14 +221,17 @@ void RipuLimiterAudioProcessor::processBlockInternal(juce::AudioBuffer<T>& buffe
         i.setTargetValue(knee);
 
     juce::dsp::AudioBlock<T> block(bufferIn);
+    juce::dsp::AudioBlock<T> oversampledBlock;
 
     if (isOversampled)
-        block = oversampling.processSamplesUp(block);
+        oversampledBlock = oversampling.get()->processSamplesUp(block);
+    else
+        oversampledBlock = block;
 
-    for (auto channel = 0; channel < block.getNumChannels(); channel++)
+    for (auto channel = 0; channel < oversampledBlock.getNumChannels(); channel++)
     {
-        auto* channelData = block.getChannelPointer(channel);
-        for (auto sample = 0; sample < block.getNumSamples(); sample++)
+        auto* channelData = oversampledBlock.getChannelPointer(channel);
+        for (auto sample = 0; sample < oversampledBlock.getNumSamples(); sample++)
         {
             drive = driveSmoothed[channel].getNextValue();
             knee = kneeSmoothed[channel].getNextValue();
@@ -225,17 +239,25 @@ void RipuLimiterAudioProcessor::processBlockInternal(juce::AudioBuffer<T>& buffe
         }
     }
 
-    // // Do your processing here on the oversampledBlock
     if (isOversampled)
-        oversampling.processSamplesDown(block);
+    {
+        oversampling.get()->processSamplesDown(block);
+        setLatencySamples(limiters[0].latencySamples() + oversampling.get()->getLatencyInSamples());
+    }
+
+    if ((int)delayLine.getDelay() != getLatencySamples())
+    {
+        delayLine.setDelay(getLatencySamples());
+        delayLine.reset();
+    }
 
     for (int channel = 0; channel < block.getNumChannels(); ++channel)
     {
         auto* channelData = block.getChannelPointer(channel);
         for (int sample = 0; sample < block.getNumSamples(); ++sample)
         {
-            // delayLine.pushSample(channelData[sample], channel);
-            // (void)delayLine.popSample(channel);
+            delayLine.pushSample(channel, static_cast<double>(channelData[sample]));
+            (void)delayLine.popSample(channel);
             threshold = thresholdSmoothed[channel].getNextValue();
             gain = gainSmoothed[channel].getNextValue();
             drive = driveSmoothed[channel].getNextValue();
@@ -243,8 +265,7 @@ void RipuLimiterAudioProcessor::processBlockInternal(juce::AudioBuffer<T>& buffe
             limiters[channel].setThreshold(threshold);
 
             auto newSample = channelData[sample];
-            if (!approximatelyEqual(drive, 1.0f))
-                newSample = SoftClipper(newSample, static_cast<T>(drive));
+
             auto val = static_cast<T>(limiters[channel].sample(newSample));
             if (!isLinked)
             {
@@ -255,8 +276,7 @@ void RipuLimiterAudioProcessor::processBlockInternal(juce::AudioBuffer<T>& buffe
             channelData[sample] = val;
 
             auto gr = limiters[channel].gainReduction;
-            if ((float)gr < gainReduction.load(std::memory_order_acquire))
-                gainReduction.store((float)gr, std::memory_order_release);
+            gainReduction.store((float)gr, std::memory_order_release);
         }
     }
 }
@@ -271,7 +291,7 @@ void RipuLimiterAudioProcessor::processBlockBypassedInternal(
         auto* channelData = buffer.getWritePointer(channel);
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
         {
-            delayLine.pushSample(static_cast<T>(channelData[sample]), channel);
+            delayLine.pushSample(static_cast<double>(channelData[sample]), channel);
             channelData[sample] = static_cast<T>(delayLine.popSample(channel));
         }
     }
