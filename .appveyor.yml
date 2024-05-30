@@ -79,7 +79,7 @@ for:
   - matrix: { only: [ appveyor_build_worker_image: macos-mojave ] }
     install:
       - |-
-        sudo xcode-select -s /Applications/Xcode-10.3.app:
+        sudo xcode-select -s /Applications/Xcode-10.3.app
 
         curl -fsSLO https://github.com/Kitware/CMake/releases/download/v3.22.6/cmake-3.22.6-macos-universal.tar.gz
         tar xf cmake-3.22.6-macos-universal.tar.gz
