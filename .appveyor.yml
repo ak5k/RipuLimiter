@@ -10,6 +10,14 @@ build_script: |-
     mkdir build-archive
     mv *_artefacts/${{ env.BUILD_TYPE }}/@(VST3|AU|AAX)/*.@(vst3|component|aax) build-archive/
 
+    REPO_NAME=$(echo $APPVEYOR_REPO_NAME | cut -d'/' -f2)
+    TAG=$APPVEYOR_REPO_TAG_NAME
+    OS=$APPVEYOR_BUILD_WORKER_IMAGE
+    ARCH=$ARCH
+
+    # Create the zip file
+    zip -r "${REPO_NAME}-${TAG}-${OS}-${ARCH}.zip" build-archive   
+
 for:
   - matrix: { only: [ appveyor_build_worker_image: &linux Ubuntu1804 ] }
     install: |-
@@ -122,6 +130,6 @@ deploy:
   force_update: true
   auth_token:
     secure: Rk8do2Q/etdabjwIABBRdTJu1a4wYVu9Ltz8HJuC0wc3rz+hHUMGa3N7vTlsrd7z
-  artifact: /.*\.(dll|dylib|so|lua|exe|pkg|pdb)/
+  artifact: /.*\.(.zip|dll|dylib|so|lua|exe|pkg|pdb)/
   on:
     APPVEYOR_REPO_TAG: true
