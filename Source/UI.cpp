@@ -39,7 +39,7 @@ UI::UI(RipuLimiterAudioProcessor& p)
     threshSilder->setTextBoxStyle(juce::Slider::TextBoxRight, false, 80, 20);
     threshSilder->addListener(this);
 
-    threshSilder->setBounds(80, 152, 191, 104);
+    threshSilder->setBounds(72, 144, 191, 104);
 
     gainSlider.reset(new juce::Slider("gain Slider"));
     addAndMakeVisible(gainSlider.get());
@@ -48,14 +48,14 @@ UI::UI(RipuLimiterAudioProcessor& p)
     gainSlider->setTextBoxStyle(juce::Slider::TextBoxRight, false, 80, 20);
     gainSlider->addListener(this);
 
-    gainSlider->setBounds(136, 264, 191, 104);
+    gainSlider->setBounds(72, 264, 191, 104);
 
     linkButton.reset(new juce::ToggleButton("link button"));
     addAndMakeVisible(linkButton.get());
     linkButton->setButtonText(TRANS("new button"));
     linkButton->addListener(this);
 
-    linkButton->setBounds(304, 160, 102, 24);
+    linkButton->setBounds(112, 240, 102, 24);
 
     levelMeter.reset(new LevelMeter());
     addAndMakeVisible(levelMeter.get());
@@ -72,6 +72,22 @@ UI::UI(RipuLimiterAudioProcessor& p)
 
     driveSlider->setBounds(256, 200, 191, 104);
 
+    oversampleButton.reset(new juce::ToggleButton("oversample button"));
+    addAndMakeVisible(oversampleButton.get());
+    oversampleButton->setButtonText(TRANS("4x"));
+    oversampleButton->addListener(this);
+
+    oversampleButton->setBounds(376, 272, 54, 24);
+
+    kneeSlider.reset(new juce::Slider("knee slider"));
+    addAndMakeVisible(kneeSlider.get());
+    kneeSlider->setRange(0, 6, 0.1);
+    kneeSlider->setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
+    kneeSlider->setTextBoxStyle(juce::Slider::TextBoxRight, false, 40, 20);
+    kneeSlider->addListener(this);
+
+    kneeSlider->setBounds(352, 184, 94, 56);
+
     //[UserPreSize]
     threshAttachment.reset(
         new juce::AudioProcessorValueTreeState::SliderAttachment(audioProcessor.getAPVTS(), "thresh", *threshSilder)
@@ -79,12 +95,19 @@ UI::UI(RipuLimiterAudioProcessor& p)
     gainAttachment.reset(
         new juce::AudioProcessorValueTreeState::SliderAttachment(audioProcessor.getAPVTS(), "gain", *gainSlider)
     );
-    linkAttachment.reset(
-        new juce::AudioProcessorValueTreeState::ButtonAttachment(audioProcessor.getAPVTS(), "link", *linkButton)
-    );
     driveAttachment.reset(
         new juce::AudioProcessorValueTreeState::SliderAttachment(audioProcessor.getAPVTS(), "drive", *driveSlider)
     );
+    kneeAttachment.reset(
+        new juce::AudioProcessorValueTreeState::SliderAttachment(audioProcessor.getAPVTS(), "knee", *kneeSlider)
+    );
+
+    linkAttachment.reset(
+        new juce::AudioProcessorValueTreeState::ButtonAttachment(audioProcessor.getAPVTS(), "link", *linkButton)
+    );
+    oversampleAttachment.reset(new juce::AudioProcessorValueTreeState::ButtonAttachment(
+        audioProcessor.getAPVTS(), "oversample", *oversampleButton
+    ));
     //[/UserPreSize]
 
     setSize(600, 400);
@@ -99,8 +122,11 @@ UI::~UI()
     //[Destructor_pre]. You can add your own custom destruction code here..
     threshAttachment = nullptr;
     gainAttachment = nullptr;
-    linkAttachment = nullptr;
     driveAttachment = nullptr;
+    kneeAttachment = nullptr;
+
+    linkAttachment = nullptr;
+    oversampleAttachment = nullptr;
     //[/Destructor_pre]
 
     threshSilder = nullptr;
@@ -108,6 +134,8 @@ UI::~UI()
     linkButton = nullptr;
     levelMeter = nullptr;
     driveSlider = nullptr;
+    oversampleButton = nullptr;
+    kneeSlider = nullptr;
 
     //[Destructor]. You can add your own custom destruction code here..
     //[/Destructor]
@@ -129,6 +157,26 @@ void UI::paint(juce::Graphics& g)
         //[/UserPaintCustomArguments]
         g.setColour(fillColour);
         g.setFont(juce::Font("Comic Sans MS", 94.60f, juce::Font::plain).withTypefaceStyle("Regular"));
+        g.drawText(text, x, y, width, height, juce::Justification::centred, true);
+    }
+
+    {
+        int x = 250, y = 179, width = 206, height = 135;
+        juce::Colour strokeColour = juce::Colour(0xffb8b8b8);
+        //[UserPaintCustomArguments] Customize the painting arguments here..
+        //[/UserPaintCustomArguments]
+        g.setColour(strokeColour);
+        g.drawRect(x, y, width, height, 5);
+    }
+
+    {
+        int x = 258, y = 147, width = 200, height = 30;
+        juce::String text(TRANS("Paskialisaattori"));
+        juce::Colour fillColour = juce::Colour(0xffb8b8b8);
+        //[UserPaintCustomArguments] Customize the painting arguments here..
+        //[/UserPaintCustomArguments]
+        g.setColour(fillColour);
+        g.setFont(juce::Font("Times New Roman", 25.70f, juce::Font::plain).withTypefaceStyle("Bold Italic"));
         g.drawText(text, x, y, width, height, juce::Justification::centred, true);
     }
 
@@ -169,6 +217,11 @@ void UI::sliderValueChanged(juce::Slider* sliderThatWasMoved)
         //[UserSliderCode_driveSlider] -- add your slider handling code here..
         //[/UserSliderCode_driveSlider]
     }
+    else if (sliderThatWasMoved == kneeSlider.get())
+    {
+        //[UserSliderCode_kneeSlider] -- add your slider handling code here..
+        //[/UserSliderCode_kneeSlider]
+    }
 
     //[UsersliderValueChanged_Post]
     //[/UsersliderValueChanged_Post]
@@ -185,6 +238,11 @@ void UI::buttonClicked(juce::Button* buttonThatWasClicked)
         if (linkButton->getToggleState())
             gainSlider.get()->setValue(threshSilder.get()->getValue(), juce::NotificationType::sendNotificationAsync);
         //[/UserButtonCode_linkButton]
+    }
+    else if (buttonThatWasClicked == oversampleButton.get())
+    {
+        //[UserButtonCode_oversampleButton] -- add your button handler code here..
+        //[/UserButtonCode_oversampleButton]
     }
 
     //[UserbuttonClicked_Post]
@@ -211,19 +269,24 @@ BEGIN_JUCER_METADATA
     <TEXT pos="119 11 370 128" fill="solid: ffb8b8b8" hasStroke="0" text="RipuLimiter"
           fontname="Comic Sans MS" fontsize="94.59999999999999" kerning="0.0"
           bold="0" italic="0" justification="36"/>
+    <RECT pos="250 179 206 135" fill="solid: ffffff" hasStroke="1" stroke="5, mitered, butt"
+          strokeColour="solid: ffb8b8b8"/>
+    <TEXT pos="258 147 200 30" fill="solid: ffb8b8b8" hasStroke="0" text="Paskialisaattori"
+          fontname="Times New Roman" fontsize="25.7" kerning="0.0" bold="1"
+          italic="1" justification="36" typefaceStyle="Bold Italic"/>
   </BACKGROUND>
   <SLIDER name="thresh slider" id="9d3728374906328a" memberName="threshSilder"
-          virtualName="" explicitFocusOrder="0" pos="80 152 191 104" min="-24.0"
+          virtualName="" explicitFocusOrder="0" pos="72 144 191 104" min="-24.0"
           max="0.0" int="0.1" style="RotaryHorizontalVerticalDrag" textBoxPos="TextBoxRight"
           textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
           needsCallback="1"/>
   <SLIDER name="gain Slider" id="63e3749118141a0c" memberName="gainSlider"
-          virtualName="" explicitFocusOrder="0" pos="136 264 191 104" min="-24.0"
+          virtualName="" explicitFocusOrder="0" pos="72 264 191 104" min="-24.0"
           max="0.0" int="0.1" style="RotaryHorizontalVerticalDrag" textBoxPos="TextBoxRight"
           textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
           needsCallback="1"/>
   <TOGGLEBUTTON name="link button" id="78a766211d990c5b" memberName="linkButton"
-                virtualName="" explicitFocusOrder="0" pos="304 160 102 24" buttonText="new button"
+                virtualName="" explicitFocusOrder="0" pos="112 240 102 24" buttonText="new button"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
   <GENERICCOMPONENT name="level meter" id="45ddf433e27c0af4" memberName="levelMeter"
                     virtualName="" explicitFocusOrder="0" pos="456 136 54 216" class="LevelMeter"
@@ -232,6 +295,14 @@ BEGIN_JUCER_METADATA
           virtualName="" explicitFocusOrder="0" pos="256 200 191 104" min="0.0"
           max="24.0" int="0.1" style="RotaryHorizontalVerticalDrag" textBoxPos="TextBoxRight"
           textBoxEditable="1" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
+          needsCallback="1"/>
+  <TOGGLEBUTTON name="oversample button" id="8b6d475b5fb2a294" memberName="oversampleButton"
+                virtualName="" explicitFocusOrder="0" pos="376 272 54 24" buttonText="4x"
+                connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
+  <SLIDER name="knee slider" id="ec149611c92838fc" memberName="kneeSlider"
+          virtualName="" explicitFocusOrder="0" pos="352 184 94 56" min="0.0"
+          max="6.0" int="0.1" style="RotaryHorizontalVerticalDrag" textBoxPos="TextBoxRight"
+          textBoxEditable="1" textBoxWidth="40" textBoxHeight="20" skewFactor="1.0"
           needsCallback="1"/>
 </JUCER_COMPONENT>
 

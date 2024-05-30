@@ -29,7 +29,8 @@ class RipuLimiterAudioProcessor : public juce::AudioProcessor
 
     void processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages) override
     {
-        processBlockInternal(buffer, midiMessages);
+        tempBufferDouble.makeCopyOf(buffer);
+        processBlockInternal(tempBufferDouble, midiMessages);
     }
 
     void processBlock(juce::AudioBuffer<double>& buffer, juce::MidiBuffer& midiMessages) override
@@ -88,14 +89,17 @@ class RipuLimiterAudioProcessor : public juce::AudioProcessor
 
   private:
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
+    juce::AudioBuffer<double> tempBufferDouble;
 
     std::atomic<float> gainReduction;
 
     std::vector<juce::LinearSmoothedValue<float>> thresholdSmoothed;
     std::vector<juce::LinearSmoothedValue<float>> gainSmoothed;
     std::vector<juce::LinearSmoothedValue<float>> driveSmoothed;
+    std::vector<juce::LinearSmoothedValue<float>> kneeSmoothed;
 
     juce::dsp::DelayLine<double, juce::dsp::DelayLineInterpolationTypes::Linear> delayLine;
+    juce::dsp::Oversampling<double> oversampling;
 
     std::vector<LimiterAttackHoldRelease> limiters;
     juce::AudioProcessorValueTreeState apvts;

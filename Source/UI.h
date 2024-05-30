@@ -27,6 +27,8 @@
 
 //[/Headers]
 
+
+
 //==============================================================================
 /**
                                                                     //[Comments]
@@ -35,15 +37,14 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class UI
-    : public juce::Component
-    , public juce::Timer
-    , public juce::Slider::Listener
-    , public juce::Button::Listener
+class UI  : public juce::Component,
+            public juce::Timer,
+            public juce::Slider::Listener,
+            public juce::Button::Listener
 {
-  public:
+public:
     //==============================================================================
-    UI(RipuLimiterAudioProcessor& p);
+    UI (RipuLimiterAudioProcessor& p);
     ~UI() override;
 
     //==============================================================================
@@ -56,19 +57,24 @@ class UI
 
     //[/UserMethods]
 
-    void paint(juce::Graphics& g) override;
+    void paint (juce::Graphics& g) override;
     void resized() override;
-    void sliderValueChanged(juce::Slider* sliderThatWasMoved) override;
-    void buttonClicked(juce::Button* buttonThatWasClicked) override;
+    void sliderValueChanged (juce::Slider* sliderThatWasMoved) override;
+    void buttonClicked (juce::Button* buttonThatWasClicked) override;
 
-  private:
+
+
+private:
     //[UserVariables]   -- You can add your own custom variables in this section.
     RipuLimiterAudioProcessor& audioProcessor;
 
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> threshAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> gainAttachment;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> linkAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> driveAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> kneeAttachment;
+
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> linkAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> oversampleAttachment;
     //[/UserVariables]
 
     //==============================================================================
@@ -77,10 +83,14 @@ class UI
     std::unique_ptr<juce::ToggleButton> linkButton;
     std::unique_ptr<LevelMeter> levelMeter;
     std::unique_ptr<juce::Slider> driveSlider;
+    std::unique_ptr<juce::ToggleButton> oversampleButton;
+    std::unique_ptr<juce::Slider> kneeSlider;
+
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(UI)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (UI)
 };
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
+
