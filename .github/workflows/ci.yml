@@ -201,7 +201,6 @@ jobs:
         rm -rf build-${{runner.os}}
         mkdir build-${{runner.os}}
         mv *_artefacts/${{ env.BUILD_TYPE }}/@(VST3|AU|AAX)/*.@(vst3|component|aax) build-${{runner.os}}/
-        mv *_artefacts/${{ env.BUILD_TYPE }}/Standalone/* build-${{runner.os}}/
     
     - name: set filename
       id: filename
