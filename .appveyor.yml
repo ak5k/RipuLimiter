@@ -70,7 +70,7 @@ for:
       esac
 
     build_script: |-
-        cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+        cmake -B build -DCMAKE_BUILD_TYPE=Release \
         cmake --build build
 
     artifacts:
