@@ -94,7 +94,7 @@ for:
         sudo curl -k https://curl.se/ca/cacert.pem -o /etc/ssl/cert.pem
 
     build_script: |-
-        cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+        cmake -B build -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_OSX_ARCHITECTURES=$ARCH -DCMAKE_OSX_DEPLOYMENT_TARGET=$DEPLOY_TARGET
         cmake --build build
 
