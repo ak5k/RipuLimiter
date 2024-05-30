@@ -205,16 +205,16 @@ jobs:
       run:  |
         echo "FILENAME=$(echo ${{ github.repository }} | cut -d'/' -f2)" >> "$GITHUB_OUTPUT"
 
+    # - name: zip artifacts
+    #   shell: bash
+    #   run: |
+    #     zip --junk-paths "${{steps.filename.outputs.FILENAME}}-${{github.ref_name}}-${{runner.os}}-${{matrix.config.arch}}.zip" build/build-${{runner.os}}/*
+
     - name: archive build artifacts
       uses: actions/upload-artifact@v4
       with:
         name: "${{steps.filename.outputs.FILENAME}}-${{github.ref_name}}-${{runner.os}}-${{matrix.config.arch}}.zip"
         path: build/build-${{runner.os}}/
-
-    - name: zip artifacts
-      shell: bash
-      run: |
-        zip --junk-paths "${{steps.filename.outputs.FILENAME}}-${{github.ref_name}}-${{runner.os}}-${{matrix.config.arch}}.zip" build/build-${{runner.os}}/*
 
     - name: create draft release
       uses: softprops/action-gh-release@v1
