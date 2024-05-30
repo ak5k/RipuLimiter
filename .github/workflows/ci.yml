@@ -1,5 +1,5 @@
 name: build and validate
-
+permissions: write-all
 on:
   # NOTE: Include "[no ci]", "[skip ci]", or "[ci skip]" in the commit message
   #       to prevent push and pull_request events from triggering workflows.
