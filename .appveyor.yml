@@ -72,7 +72,7 @@ for:
         ;;
       esac
     artifacts:
-      - path: build/reaper_*.so
+      - path: build/*.zip
 
   - matrix: { only: [ appveyor_build_worker_image: macos-catalina,
                       appveyor_build_worker_image: macos-monterey,
