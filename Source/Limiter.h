@@ -33,7 +33,7 @@ struct LimiterAttackHoldRelease
     double limit = 1;
     double attackMs = 4 / 3.0;
     double holdMs = 15;
-    double releaseMs = 40;
+    double releaseMs = 5;
 
     double gainReduction = 1;
 
@@ -44,7 +44,8 @@ struct LimiterAttackHoldRelease
 
     juce::dsp::DelayLine<double, juce::dsp::DelayLineInterpolationTypes::Linear> delayLine;
 
-    ExponentialRelease release; // see the previous example code
+    // ExponentialRelease release; // see the previous example code
+    std::array<ExponentialRelease, 8> releases; // array of 8 ExponentialRelease objects
 
     int attackSamples = 0;
 
@@ -62,7 +63,9 @@ struct LimiterAttackHoldRelease
 
         int holdSamples = (int)(holdMs * 0.001 * sampleRate);
         double releaseSamples = releaseMs * 0.001 * sampleRate;
-        release = ExponentialRelease(releaseSamples);
+        // release = ExponentialRelease(releaseSamples);
+        for (auto& release : releases)
+            release = ExponentialRelease(releaseSamples);
 
         peakHold.resize(attackSamples + holdSamples);
         smoother.resize(attackSamples, 3);
@@ -84,8 +87,12 @@ struct LimiterAttackHoldRelease
         if (std::abs(v) > limit)
             maxGain = limit / std::abs(v);
         double movingMin = -peakHold(-maxGain);
-        double releaseEnvelope = release.step(movingMin);
-        return smoother(releaseEnvelope);
+        // double releaseEnvelope = release.step(movingMin);
+        for (auto& release : releases)
+            movingMin = release.step(movingMin);
+        double releaseEnvelope = movingMin;
+        return releaseEnvelope;
+        // return smoother(releaseEnvelope);
     }
 
     double sample(double v)

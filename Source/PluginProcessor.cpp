@@ -179,8 +179,8 @@ void RipuLimiterAudioProcessor::processBlockInternal(juce::AudioBuffer<T>& buffe
         auto* channelData = buffer.getWritePointer(channel);
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
         {
-            delayLine.pushSample(channelData[sample], channel);
-            (void)delayLine.popSample(channel);
+            // delayLine.pushSample(channelData[sample], channel);
+            // (void)delayLine.popSample(channel);
 
             threshold = thresholdSmoothed[channel].getNextValue();
             gain = gainSmoothed[channel].getNextValue();
