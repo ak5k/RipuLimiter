@@ -33,26 +33,26 @@ jobs:
       # Define a matrix of job configurations:
       matrix:
         config:
-        # - { 
-        #     name: 'macos',
-        #     os: macos-14,
-        #     arch: arm64-x86_64,
-        #     cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_OSX_ARCHITECTURES=arm64\\;x86_64 -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13",
-        #     pluginval_link: "https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_macOS.zip",
-        #     pluginval_path: "pluginval.app/Contents/MacOS/pluginval",
-        #     build_shell: "bash",
-        #     pkg_mgr: "brew"
-        #   }
-        # - {
-        #     name: 'windows x64',
-        #     os: windows-2022,
-        #     arch: "x64",
-        #     cmake_config_flags: "-G Ninja",
-        #     pluginval_link: "https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_Windows.zip",
-        #     pluginval_path: "./pluginval.exe",
-        #     pkg_mgr: "choco",
-        #     win_clang_prefix: "\\x64"
-        #   }
+        - { 
+            name: 'macos',
+            os: macos-14,
+            arch: arm64-x86_64,
+            cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_OSX_ARCHITECTURES=arm64\\;x86_64 -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13",
+            pluginval_link: "https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_macOS.zip",
+            pluginval_path: "pluginval.app/Contents/MacOS/pluginval",
+            build_shell: "bash",
+            pkg_mgr: "brew"
+          }
+        - {
+            name: 'windows x64',
+            os: windows-2022,
+            arch: "x64",
+            cmake_config_flags: "-G Ninja",
+            pluginval_link: "https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_Windows.zip",
+            pluginval_path: "./pluginval.exe",
+            pkg_mgr: "choco",
+            win_clang_prefix: "\\x64"
+          }
         # - {
         #     name: 'windows x86',
         #     os: windows-2022,
