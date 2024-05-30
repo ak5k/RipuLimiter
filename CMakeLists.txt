@@ -26,6 +26,59 @@ else()
   endif()
 endif()
 
+find_package(Git REQUIRED)
+if(GIT_FOUND)
+  execute_process(
+    COMMAND ${GIT_EXECUTABLE} rev-parse --is-inside-work-tree
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    OUTPUT_VARIABLE IS_GIT_REPO
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET
+  )
+
+  if(IS_GIT_REPO STREQUAL "true")
+    execute_process(
+      COMMAND ${GIT_EXECUTABLE} describe --tags --abbrev=0
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+      OUTPUT_VARIABLE GIT_LATEST_TAG
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+
+    if(NOT "${GIT_LATEST_TAG}" STREQUAL "")
+      string(REGEX REPLACE "[^0-9.]" "" GIT_LATEST_TAG ${GIT_LATEST_TAG})
+    endif()
+
+    if(NOT "${GIT_LATEST_TAG}" STREQUAL "")
+      project(${PROJECT_NAME} VERSION ${GIT_LATEST_TAG} LANGUAGES C CXX)
+    endif()
+
+    execute_process(
+        COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        RESULT_VARIABLE GIT_SUBMOD_RESULT
+    )
+
+  else()
+    execute_process(
+      COMMAND ${GIT_EXECUTABLE} init .
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+      RESULT_VARIABLE GIT_SUBMOD_RESULT
+    )
+  endif()
+endif()
+message("Project version: ${PROJECT_VERSION}")
+
+if(NOT DEFINED BUILD_NUMBER)
+    set(BUILD_NUMBER 0)
+endif()
+
+if(NOT DEFINED GIT_TAG)
+    set(GIT_TAG 0)
+    set(BUILD_NUMBER 0)
+endif()
+
+string(TIMESTAMP BUILD_DATE "%Y%m%d")
+
 include(FetchContent)
 set(FETCHCONTENT_BASE_DIR "${PROJECT_SOURCE_DIR}/Libs" CACHE PATH "External dependencies path." FORCE)
 
