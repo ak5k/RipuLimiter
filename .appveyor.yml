@@ -89,7 +89,7 @@ for:
         # sudo tar xf MacOSX10.13.sdk.tar.xz -C /Library/Developer/CommandLineTools/SDKs
         # sudo xcode-select -s /Library/Developer/CommandLineTools
 
-        brew install gnu-sed
+        HOMEBREW_NO_AUTO_UPDATE=1 brew install gnu-sed
 
         sudo xcode-select -s /Applications/Xcode-9.4.1.app
 
