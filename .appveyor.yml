@@ -17,7 +17,7 @@ after_build: |-
     zip -r ../"${REPO_NAME}-${TAG}-${worker_os}-${ARCH}.zip" *
 
 for:
-  - matrix: { only: [ appveyor_build_worker_image: &linux Ubuntu2004 ] }
+  - matrix: { only: [ appveyor_build_worker_image: &linux Ubuntu1804 ] }
     install: |-
       # set -e
 
