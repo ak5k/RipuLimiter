@@ -88,7 +88,11 @@ FetchContent_Declare(juce
     GIT_SHALLOW    TRUE
     GIT_CONFIG     advice.detachedHead=false    # Disable detached HEAD warning for fetching a specific tag
 )
-FetchContent_MakeAvailable(juce)
+FetchContent_GetProperties(juce)
+if(NOT juce_POPULATED)
+  FetchContent_Populate(juce)
+endif()
+add_subdirectory(${juce_SOURCE_DIR})
 
 FetchContent_Declare(
   signalsmith-dsp
