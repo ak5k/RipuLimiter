@@ -39,7 +39,7 @@ jobs:
             name: 'macos',
             os: macos-14,
             arch: arm64-x86_64,
-            cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_OSX_ARCHITECTURES=arm64\\;x86_64 -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13",
+            cmake_config_flags: "-G Ninja -DCMAKE_OSX_ARCHITECTURES=arm64\\;x86_64 -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13",
             pluginval_link: "https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_macOS.zip",
             pluginval_path: "pluginval.app/Contents/MacOS/pluginval",
             build_shell: "bash",
@@ -59,7 +59,7 @@ jobs:
         - {
             name: 'windows arm64',
             os: windows-2022,
-            cmake_config_flags: "-G \"Visual Studio 17 2022\"",
+            cmake_config_flags: "-G Ninja",
             pkg_mgr: "choco",
             win_clang_prefix: "\\x64",
             arch: "arm64",
@@ -68,7 +68,7 @@ jobs:
         - {
             name: 'windows arm',
             os: windows-2022,
-            cmake_config_flags: "-G \"Visual Studio 17 2022\"",
+            cmake_config_flags: "-G Ninja",
             pkg_mgr: "choco",
             arch: "arm",
             varsall_arch: "x64_arm"
@@ -195,23 +195,23 @@ jobs:
 
     # Use the ccache compiler cache to speed up builds
     # Note: ccache does not support Windows
-    - name: enable ccache
-      if: runner.os != 'Windows'
-      uses: hendrikmuhs/ccache-action@v1
-      with:
-        key: ${{ matrix.config.os }}-${{ env.BUILD_TYPE }}
+    # - name: enable ccache
+    #   if: runner.os != 'Windows'
+    #   uses: hendrikmuhs/ccache-action@v1
+    #   with:
+    #     key: ${{ matrix.config.os }}-${{ env.BUILD_TYPE }}
 
     # Set up the dependency cache to be updated for every new commit
     # We include the CMake generator name in the cache key. This helps avoiding cache conflicts when switching generators
-    - name: cache build artifacts
-      uses: actions/cache@v4
-      with:
-        path: |
-          Libs
-          build
-        # key: ${{ matrix.config.os }}-${{ matrix.config.name }}-${{env.JUCE_TAG}}-build-${{ hashFiles('**/CMakeLists.txt') }}
-        # restore-keys: ${{ matrix.config.os }}-${{ matrix.config.name }}-${{env.JUCE_TAG}}-build-${{ hashFiles('**/CMakeLists.txt') }}
-        key: ${{ matrix.config.os }}-${{ matrix.config.name }}-juce${{env.JUCE_TAG}}
+    # - name: cache build artifacts
+    #   uses: actions/cache@v4
+    #   with:
+    #     path: |
+    #       Libs
+    #       build
+    #     # key: ${{ matrix.config.os }}-${{ matrix.config.name }}-${{env.JUCE_TAG}}-build-${{ hashFiles('**/CMakeLists.txt') }}
+    #     # restore-keys: ${{ matrix.config.os }}-${{ matrix.config.name }}-${{env.JUCE_TAG}}-build-${{ hashFiles('**/CMakeLists.txt') }}
+    #     key: ${{ matrix.config.os }}-${{ matrix.config.name }}-juce${{env.JUCE_TAG}}
 
     - name: install packages
       if: runner.os != 'Linux'
