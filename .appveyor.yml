@@ -57,6 +57,8 @@ for:
           mesa-common-dev
       )
 
+      sudo apt-get update -y
+
       sudo apt-get install -y "${packages[@]}"
 
       case $ARCH in
@@ -64,17 +66,17 @@ for:
         install-deps amd64
         ;;
       i686)
-        install-deps i386 g++-multilib "${packages[@]}"
+        install-deps i386 g++-multilib
         export TOOLCHAIN=$(pwd)/cmake/linux-cross.cmake \
                TOOLCHAIN_PREFIX=i386-linux-gnu
         ;;
       armv7l)
-        install-deps armhf g++-arm-linux-gnueabihf "${packages[@]}"
+        install-deps armhf g++-arm-linux-gnueabihf
         export TOOLCHAIN=$(pwd)/cmake/linux-cross.cmake \
                TOOLCHAIN_PREFIX=arm-linux-gnueabihf
         ;;
       aarch64)
-        install-deps arm64 g++-aarch64-linux-gnu "${packages[@]}"
+        install-deps arm64 g++-aarch64-linux-gnu
         export TOOLCHAIN=$(pwd)/cmake/linux-cross.cmake \
                TOOLCHAIN_PREFIX=aarch64-linux-gnu
         ;;
