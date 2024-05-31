@@ -89,7 +89,9 @@ for:
         # sudo tar xf MacOSX10.13.sdk.tar.xz -C /Library/Developer/CommandLineTools/SDKs
         # sudo xcode-select -s /Library/Developer/CommandLineTools
 
-        HOMEBREW_NO_AUTO_UPDATE=1 brew install gnu-sed
+        export HOMEBREW_NO_AUTO_UPDATE=1
+        brew install gnu-sed
+        brew install llvm@5
 
         sudo xcode-select -s /Applications/Xcode-9.4.1.app
 
@@ -98,13 +100,18 @@ for:
 
     build_script: |-
         cmake -B build -DCMAKE_BUILD_TYPE=Release -DMAC_OS_X_VERSION_10_14=1 \
+        -DCMAKE_C_COMPILER=$(brew --prefix llvm@5)/bin/clang \
+        -DCMAKE_CXX_COMPILER=$(brew --prefix llvm@5)/bin/clang++ \
         -DCMAKE_OSX_ARCHITECTURES=$ARCH -DCMAKE_OSX_DEPLOYMENT_TARGET=$DEPLOY_TARGET || true
 
         find ./Libs/ -type f \( -name "*.cpp" -o -name "*.h" -o -name "*.hpp" -o -name "*.c" \) -exec echo {} \; -exec gsed -i 's|#include <optional>|#include <experimental/optional>|g' {} \;
         find ./Libs/ -type f \( -name "*.cpp" -o -name "*.h" -o -name "*.hpp" -o -name "*.c" \) -exec echo {} \; -exec gsed -i 's|#include <variant>|#include <experimental/variant>|g' {} \;
 
         cmake -B build -DCMAKE_BUILD_TYPE=Release -DMAC_OS_X_VERSION_10_14=1 \
-        -DCMAKE_OSX_ARCHITECTURES=$ARCH -DCMAKE_OSX_DEPLOYMENT_TARGET=$DEPLOY_TARGET 
+        -DCMAKE_C_COMPILER=$(brew --prefix llvm@5)/bin/clang \
+        -DCMAKE_CXX_COMPILER=$(brew --prefix llvm@5)/bin/clang++ \
+        -DCMAKE_OSX_ARCHITECTURES=$ARCH -DCMAKE_OSX_DEPLOYMENT_TARGET=$DEPLOY_TARGET
+
         cmake --build build
 
     artifacts:
