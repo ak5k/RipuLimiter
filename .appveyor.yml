@@ -83,22 +83,22 @@ for:
         tar xf cmake-3.22.6-macos-universal.tar.gz
         export PATH=$(pwd)/cmake-3.22.6-macos-universal/CMake.app/Contents/bin:$PATH
 
-        DEPLOY_TARGET=10.9
-        export SDKROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX10.13.sdk
-        curl -fsSLO https://github.com/phracker/MacOSX-SDKs/releases/download/10.15/MacOSX10.13.sdk.tar.xz
-        # echo 608a89db8b4be150a945871230b5ba5d4767a8500bc5fe76ddf10f5cec5ef513 MacOSX10.13.sdk.tar.xz | sha256sum -c
-        sudo tar xf MacOSX10.13.sdk.tar.xz -C /Library/Developer/CommandLineTools/SDKs
-        sudo xcode-select -s /Library/Developer/CommandLineTools
+        # DEPLOY_TARGET=10.9
+        # export SDKROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX10.13.sdk
+        # curl -fsSLO https://github.com/phracker/MacOSX-SDKs/releases/download/10.15/MacOSX10.13.sdk.tar.xz
+        # # echo 608a89db8b4be150a945871230b5ba5d4767a8500bc5fe76ddf10f5cec5ef513 MacOSX10.13.sdk.tar.xz | sha256sum -c
+        # sudo tar xf MacOSX10.13.sdk.tar.xz -C /Library/Developer/CommandLineTools/SDKs
+        # sudo xcode-select -s /Library/Developer/CommandLineTools
 
-        # sudo xcode-select -s /Applications/Xcode-9.4.1.app
+        sudo xcode-select -s /Applications/Xcode-9.4.1.app
 
 
       - |-
         sudo curl -k https://curl.se/ca/cacert.pem -o /etc/ssl/cert.pem
 
     build_script: |-
-        cmake -B build -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_OSX_ARCHITECTURES=$ARCH -DCMAKE_OSX_DEPLOYMENT_TARGET=$DEPLOY_TARGET -DMAC_OS_X_VERSION_10_14=1
+        cmake -B build -DCMAKE_BUILD_TYPE=Release -DMAC_OS_X_VERSION_10_14=1 -D<optional>=<experimental/optional>
+        -DCMAKE_OSX_ARCHITECTURES=$ARCH -DCMAKE_OSX_DEPLOYMENT_TARGET=$DEPLOY_TARGET 
         cmake --build build
 
     artifacts:
