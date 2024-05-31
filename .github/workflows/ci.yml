@@ -85,7 +85,7 @@ jobs:
             name: 'linux x64',
             os: ubuntu-22.04,
             arch: x64,
-            cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++",
+            cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++",
             pluginval_link: "https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_Linux.zip",
             pluginval_path: "./pluginval",
             pkg_mgr: "sudo apt-get -y",
@@ -94,21 +94,21 @@ jobs:
             name: 'linux arm64',
             os: ubuntu-22.04,
             arch: aarch64,
-            cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++",
+            cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++",
             pkg_mgr: "sudo apt-get -y",
           }
         - {
             name: 'linux x86',
             os: ubuntu-22.04,
             arch: i686,
-            cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++",
+            cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++",
             pkg_mgr: "sudo apt-get -y",
           }
         - {
             name: 'linux arm32',
             os: ubuntu-22.04,
             arch: armv7l,
-            cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++",
+            cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++",
             pkg_mgr: "sudo apt-get -y",
           }
 
