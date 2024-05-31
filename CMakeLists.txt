@@ -91,9 +91,9 @@ FetchContent_Declare(juce
     GIT_CONFIG     advice.detachedHead=false    # Disable detached HEAD warning for fetching a specific tag
 )
 FetchContent_GetProperties(juce)
-if(NOT juce_POPULATED)
+# if(NOT juce_POPULATED)
   FetchContent_Populate(juce)
-  if (APPLE AND CMAKE_OSX_ARCHITECTURES MATCHES "i386")
+#   if (APPLE AND CMAKE_OSX_ARCHITECTURES MATCHES "i386")
     message("Building for 32-bit macOS")
     set(FILE_URL "https://releases.llvm.org/5.0.2/libcxx-5.0.2.src.tar.xz")
     set(FILE_PATH "${FETCHCONTENT_BASE_DIR}/libcxx-5.0.2.src.tar.xz")
@@ -113,11 +113,11 @@ if(NOT juce_POPULATED)
         "target_include_directories(juceaide INTERFACE \"../libcxx-5.0.2.src\")\n")
 
     file(READ "${FETCHCONTENT_BASE_DIR}/juce-src/CMakeLists.txt" content)
-    set(content "include_directories(BEFORE \"../libcxx-5.0.2.src/include\")\n${content}")
+    set(content "include_directories(BEFORE \"../libcxx-5.0.2.src\")\n${content}")
     file(WRITE "${FETCHCONTENT_BASE_DIR}/juce-src/CMakeLists.txt" "${content}")
 
-  endif()
-endif()
+#   endif()
+# endif()
 add_subdirectory(${juce_SOURCE_DIR})
 
 FetchContent_Declare(
