@@ -100,10 +100,11 @@ for:
         cmake -B build -DCMAKE_BUILD_TYPE=Release -DMAC_OS_X_VERSION_10_14=1 \
         -DCMAKE_OSX_ARCHITECTURES=$ARCH -DCMAKE_OSX_DEPLOYMENT_TARGET=$DEPLOY_TARGET || true
 
-        cmake -B build -DCMAKE_BUILD_TYPE=Release -DMAC_OS_X_VERSION_10_14=1 \
-        -DCMAKE_OSX_ARCHITECTURES=$ARCH -DCMAKE_OSX_DEPLOYMENT_TARGET=$DEPLOY_TARGET 
         find ./Libs/ -type f \( -name "*.cpp" -o -name "*.h" -o -name "*.hpp" -o -name "*.c" \) -exec echo {} \; -exec gsed -i 's|#include <optional>|#include <experimental/optional>|g' {} \;
         find ./Libs/ -type f \( -name "*.cpp" -o -name "*.h" -o -name "*.hpp" -o -name "*.c" \) -exec echo {} \; -exec gsed -i 's|#include <variant>|#include <experimental/variant>|g' {} \;
+
+        cmake -B build -DCMAKE_BUILD_TYPE=Release -DMAC_OS_X_VERSION_10_14=1 \
+        -DCMAKE_OSX_ARCHITECTURES=$ARCH -DCMAKE_OSX_DEPLOYMENT_TARGET=$DEPLOY_TARGET 
         cmake --build build
 
     artifacts:
