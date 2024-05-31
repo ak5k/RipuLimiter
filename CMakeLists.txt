@@ -94,7 +94,7 @@ if (APPLE AND CMAKE_OSX_ARCHITECTURES MATCHES "i386")
 
   execute_process(COMMAND tar -xf ${FILE_PATH} -C ${FETCHCONTENT_BASE_DIR}
                   RESULT_VARIABLE result)
-  include_directories(${FETCHCONTENT_BASE_DIR}/libcxx-5.0.2.src/include)
+  include_directories(SYSTEM ${FETCHCONTENT_BASE_DIR}/libcxx-5.0.2.src/include)
 endif()
 
 FetchContent_Declare(juce
