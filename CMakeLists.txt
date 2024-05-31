@@ -83,19 +83,6 @@ include(FetchContent)
 set(FETCHCONTENT_BASE_DIR "${PROJECT_SOURCE_DIR}/Libs" CACHE PATH "External dependencies path." FORCE)
 
 # 32-bit mac builds require macOS 10.14 Mojave, Xcode 9, and libc++ to be included
-if (APPLE AND CMAKE_OSX_ARCHITECTURES MATCHES "i386")
-  message("Building for 32-bit macOS")
-  set(FILE_URL "https://releases.llvm.org/5.0.2/libcxx-5.0.2.src.tar.xz")
-  set(FILE_PATH "${FETCHCONTENT_BASE_DIR}/libcxx-5.0.2.src.tar.xz")
-
-  file(DOWNLOAD ${FILE_URL} ${FILE_PATH}
-      STATUS status
-      LOG log)
-
-  execute_process(COMMAND tar -xf ${FILE_PATH} -C ${FETCHCONTENT_BASE_DIR}
-                  RESULT_VARIABLE result)
-  include_directories(BEFORE SYSTEM "${FETCHCONTENT_BASE_DIR}/libcxx-5.0.2.src/include")
-endif()
 
 FetchContent_Declare(juce
     GIT_REPOSITORY https://github.com/juce-framework/JUCE.git
@@ -106,6 +93,25 @@ FetchContent_Declare(juce
 FetchContent_GetProperties(juce)
 if(NOT juce_POPULATED)
   FetchContent_Populate(juce)
+  if (APPLE AND CMAKE_OSX_ARCHITECTURES MATCHES "i386")
+    message("Building for 32-bit macOS")
+    set(FILE_URL "https://releases.llvm.org/5.0.2/libcxx-5.0.2.src.tar.xz")
+    set(FILE_PATH "${FETCHCONTENT_BASE_DIR}/libcxx-5.0.2.src.tar.xz")
+
+    file(DOWNLOAD ${FILE_URL} ${FILE_PATH}
+        STATUS status
+        LOG log)
+
+    execute_process(COMMAND tar -xf ${FILE_PATH} -C ${FETCHCONTENT_BASE_DIR}
+                    RESULT_VARIABLE result)
+
+    file(COPY ${FETCHCONTENT_BASE_DIR}/libcxx-5.0.2.src/include/variant
+        ${FETCHCONTENT_BASE_DIR}/libcxx-5.0.2.src/include/optional
+        DESTINATION ${FETCHCONTENT_BASE_DIR}/libcxx-5.0.2.src)
+
+    file(APPEND "${FETCHCONTENT_BASE_DIR}/juce-src/CMakeLists.txt" 
+        "target_include_directories(juceaide INTERFACE \"../libcxx-5.0.2.src\")\n")
+  endif()
 endif()
 add_subdirectory(${juce_SOURCE_DIR})
 
