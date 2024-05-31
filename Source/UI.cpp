@@ -90,7 +90,7 @@ UI::UI(RipuLimiterAudioProcessor& p)
 
     cascadeButton.reset(new juce::ToggleButton("cascade Button"));
     addAndMakeVisible(cascadeButton.get());
-    cascadeButton->setButtonText(juce::CharPointer_UTF8("P\xc3\xb6k\xc3\xa4Leveler"));
+    cascadeButton->setButtonText(juce::CharPointer_UTF8("P\xc3\xb6k\xc3\xa4Leveller"));
     cascadeButton->addListener(this);
 
     cascadeButton->setBounds(248, 304, 150, 24);
@@ -389,7 +389,7 @@ BEGIN_JUCER_METADATA
           textBoxEditable="1" textBoxWidth="40" textBoxHeight="20" skewFactor="1.0"
           needsCallback="1"/>
   <TOGGLEBUTTON name="cascade Button" id="3dc2076207369837" memberName="cascadeButton"
-                virtualName="" explicitFocusOrder="0" pos="248 304 150 24" buttonText="P&#246;k&#228;Leveler"
+                virtualName="" explicitFocusOrder="0" pos="248 304 150 24" buttonText="P&#246;k&#228;Leveller"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
   <SLIDER name="hold slider" id="dcee75f0aa2b7acb" memberName="holdSlider"
           virtualName="" explicitFocusOrder="0" pos="240 328 94 56" min="1.0"
