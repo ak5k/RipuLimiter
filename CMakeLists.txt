@@ -116,6 +116,10 @@ if(NOT juce_POPULATED)
     set(content "include_directories(BEFORE \"../libcxx-5.0.2.src\")\n${content}")
     file(WRITE "${FETCHCONTENT_BASE_DIR}/juce-src/CMakeLists.txt" "${content}")
 
+    execute_process(
+        COMMAND bash -c "find ${FETCHCONTENT_BASE_DIR}/juce-src -type f -name '*.h' -exec gsed -i '/Xcode 10.1\\+/d' {} \\;"
+        RESULT_VARIABLE result
+    )
 
   endif()
 endif()

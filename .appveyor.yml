@@ -84,6 +84,8 @@ for:
 
         export HOMEBREW_NO_AUTO_UPDATE=1
 
+        brew install gnu-sed
+
         DEPLOY_TARGET=10.9
         # export SDKROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX10.13.sdk
         # curl -fsSLO https://github.com/phracker/MacOSX-SDKs/releases/download/10.15/MacOSX10.13.sdk.tar.xz
