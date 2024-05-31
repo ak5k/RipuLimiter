@@ -101,7 +101,7 @@ jobs:
             name: 'linux x86',
             os: ubuntu-22.04,
             arch: i686,
-            cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache",
+            cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++",
             pkg_mgr: "sudo apt-get -y",
           }
         - {
@@ -293,7 +293,8 @@ jobs:
         shopt -s extglob  # Enable bash extended globbing
         rm -rf build-${{runner.os}}
         mkdir build-${{runner.os}}
-        mv *_artefacts/${{ env.BUILD_TYPE }}/@(VST3|AU|AAX)/*.@(vst3|component|aax) build-${{runner.os}}/
+        mv *_artefacts/${{ env.BUILD_TYPE }}/@(VST3|AU|AAX)/*.@(vst3|component|aax) build-${{runner.os}}/ || true
+        mv *_artefacts/@(VST3|AU|AAX)/*.@(vst3|component|aax) build-${{runner.os}}/ || true
     
     - name: set filename
       id: filename
