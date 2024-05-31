@@ -195,23 +195,23 @@ jobs:
 
     # Use the ccache compiler cache to speed up builds
     # Note: ccache does not support Windows
-    - name: enable ccache
-      if: runner.os != 'Windows'
-      uses: hendrikmuhs/ccache-action@v1
-      with:
-        key: ${{ matrix.config.os }}-${{ env.BUILD_TYPE }}
+    # - name: enable ccache
+    #   if: runner.os != 'Windows'
+    #   uses: hendrikmuhs/ccache-action@v1
+    #   with:
+    #     key: ${{ matrix.config.os }}-${{ env.BUILD_TYPE }}
 
     # Set up the dependency cache to be updated for every new commit
     # We include the CMake generator name in the cache key. This helps avoiding cache conflicts when switching generators
-    - name: cache build artifacts
-      uses: actions/cache@v4
-      with:
-        path: |
-          Libs
-          build
-        # key: ${{ matrix.config.os }}-${{ matrix.config.name }}-${{env.JUCE_TAG}}-build-${{ hashFiles('**/CMakeLists.txt') }}
-        # restore-keys: ${{ matrix.config.os }}-${{ matrix.config.name }}-${{env.JUCE_TAG}}-build-${{ hashFiles('**/CMakeLists.txt') }}
-        key: ${{ matrix.config.os }}-${{ matrix.config.name }}-juce${{env.JUCE_TAG}}
+    # - name: cache build artifacts
+    #   uses: actions/cache@v4
+    #   with:
+    #     path: |
+    #       Libs
+    #       build
+    #     # key: ${{ matrix.config.os }}-${{ matrix.config.name }}-${{env.JUCE_TAG}}-build-${{ hashFiles('**/CMakeLists.txt') }}
+    #     # restore-keys: ${{ matrix.config.os }}-${{ matrix.config.name }}-${{env.JUCE_TAG}}-build-${{ hashFiles('**/CMakeLists.txt') }}
+    #     key: ${{ matrix.config.os }}-${{ matrix.config.name }}-juce${{env.JUCE_TAG}}
 
     - name: install packages
       if: runner.os != 'Linux'
