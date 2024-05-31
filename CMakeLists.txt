@@ -84,6 +84,7 @@ set(FETCHCONTENT_BASE_DIR "${PROJECT_SOURCE_DIR}/Libs" CACHE PATH "External depe
 
 # 32-bit mac builds require macOS 10.14 Mojave, Xcode 9, and libc++ to be included
 if (APPLE AND CMAKE_OSX_ARCHITECTURES MATCHES "i386")
+  message("Building for 32-bit macOS")
   set(FILE_URL "https://releases.llvm.org/5.0.2/libcxx-5.0.2.src.tar.xz")
   set(FILE_PATH "${FETCHCONTENT_BASE_DIR}/libcxx-5.0.2.src.tar.xz")
 
