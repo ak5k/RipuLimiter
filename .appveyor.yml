@@ -57,6 +57,8 @@ for:
           mesa-common-dev
       )
 
+      sudo apt-get install -y "${packages[@]}"
+
       case $ARCH in
       x86_64)
         install-deps amd64
