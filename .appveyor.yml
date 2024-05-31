@@ -17,7 +17,7 @@ after_build: |-
     zip -r ../"${REPO_NAME}-${TAG}-${worker_os}-${ARCH}.zip" *
 
 for:
-  - matrix: { only: [ appveyor_build_worker_image: &linux Ubuntu1804 ] }
+  - matrix: { only: [ appveyor_build_worker_image: &linux Ubuntu2004 ] }
     install: |-
       # set -e
 
@@ -35,8 +35,8 @@ for:
         sudo aptitude install -yR ${native[@]} ${target[@]/%/:$arch} > /dev/null
       }
       
-      sudo update-alternatives --set gcc /usr/bin/gcc-7
-      sudo apt-get install -qq --allow-downgrades libstdc++6=8.4.0-1ubuntu1~18.04 > /dev/null
+      # sudo update-alternatives --set gcc /usr/bin/gcc-7
+      # sudo apt-get install -qq --allow-downgrades libstdc++6=8.4.0-1ubuntu1~18.04 > /dev/null
 
       sudo apt-get install -y \
         libasound2-dev libjack-jackd2-dev \
@@ -114,10 +114,10 @@ environment:
   REPO_TAG: $(APPVEYOR_REPO_TAG_NAME)
 
   matrix:
-    - job_name: macOS x86 32-bit
-      appveyor_build_worker_image: macos-mojave
-      worker_os: MacOSX
-      ARCH: i386
+    # - job_name: macOS x86 32-bit
+    #   appveyor_build_worker_image: macos-mojave
+    #   worker_os: MacOSX
+    #   ARCH: i386
     - job_name: Linux ARM 32-bit
       appveyor_build_worker_image: *linux
       worker_os: Linux
