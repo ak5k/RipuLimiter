@@ -1,7 +1,6 @@
 version: "{build}-{branch}"
 
-after_build:
-  -sh: |- 
+after_build: |- 
     # Common script that runs after the build script
     cd build 
     shopt -s extglob  # Enable bash extended globbing
