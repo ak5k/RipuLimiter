@@ -110,7 +110,7 @@ struct LimiterAttackHoldRelease
         double releaseSamples = releaseMs * 0.001 * sampleRate;
         // release = ExponentialRelease(releaseSamples);
         for (auto& release : releases)
-            if (release.releaseSamples != releaseSamples)
+            if (release.releaseSamples != (int)releaseSamples)
                 release.setReleaseSlew(releaseSamples);
     }
 

@@ -26,6 +26,8 @@ jobs:
     name: build and validate on ${{matrix.config.name}}
   
     runs-on: ${{matrix.config.os}}
+    env:
+      ARCH: ${{matrix.config.arch}}
     
     strategy:
       # Don't cancel all in-progress jobs if any matrix job fails:
@@ -42,15 +44,6 @@ jobs:
             pluginval_path: "pluginval.app/Contents/MacOS/pluginval",
             build_shell: "bash",
             pkg_mgr: "brew"
-          }
-        - {
-            name: 'linux x64',
-            os: ubuntu-22.04,
-            arch: x64,
-            cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++",
-            pluginval_link: "https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_Linux.zip",
-            pluginval_path: "./pluginval",
-            pkg_mgr: "sudo apt-get -y",
           }
         - {
             name: 'windows x64',
@@ -88,6 +81,36 @@ jobs:
             arch: "x86",
             varsall_arch: "x86"
           }
+        - {
+            name: 'linux x64',
+            os: ubuntu-22.04,
+            arch: x64,
+            cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++",
+            pluginval_link: "https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_Linux.zip",
+            pluginval_path: "./pluginval",
+            pkg_mgr: "sudo apt-get -y",
+          }
+        - {
+            name: 'linux arm64',
+            os: ubuntu-22.04,
+            arch: aarch64,
+            cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache",
+            pkg_mgr: "sudo apt-get -y",
+          }
+        - {
+            name: 'linux x86',
+            os: ubuntu-22.04,
+            arch: i686,
+            cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache",
+            pkg_mgr: "sudo apt-get -y",
+          }
+        - {
+            name: 'linux arm32',
+            os: ubuntu-22.04,
+            arch: armv7l,
+            cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache",
+            pkg_mgr: "sudo apt-get -y",
+          }
 
     # Steps run in sequence. Each step runs in its own process in the runner environment and has access to the workspace and filesystem
     # NB! Because steps run in their own process, changes to environment variables are not preserved between steps
@@ -115,6 +138,57 @@ jobs:
           libfreetype6-dev \
           libx11-dev libxcomposite-dev libxcursor-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev \
           libglu1-mesa-dev mesa-common-dev
+
+        install-deps() {
+          # sudo add-apt-repository --remove "deb http://apt.postgresql.org/pub/repos/apt/ bionic-pgdg main"
+          local arch="$1"; shift
+          local native=("$@" php-cli qemu-user-binfmt )
+          local target=()
+
+          sudo dpkg --add-architecture $arch
+          sudo apt-get update -qq
+          sudo apt-get install -qq aptitude > /dev/null
+          sudo aptitude install -yR ${native[@]} ${target[@]/%/:$arch} > /dev/null
+        }
+
+        packages=(
+            libasound2-dev
+            libjack-jackd2-dev
+            ladspa-sdk
+            libcurl4-openssl-dev
+            libfreetype6-dev
+            libx11-dev
+            libxcomposite-dev
+            libxcursor-dev
+            libxcursor-dev
+            libxext-dev
+            libxinerama-dev
+            libxrandr-dev
+            libxrender-dev
+            libglu1-mesa-dev
+            mesa-common-dev
+        )
+
+        case $ARCH in
+        x86_64)
+          install-deps amd64
+          ;;
+        i686)
+          install-deps i386 g++-multilib
+          export TOOLCHAIN=$(pwd)/cmake/linux-cross.cmake \
+                TOOLCHAIN_PREFIX=i386-linux-gnu
+          ;;
+        armv7l)
+          install-deps armhf g++-arm-linux-gnueabihf
+          export TOOLCHAIN=$(pwd)/cmake/linux-cross.cmake \
+                TOOLCHAIN_PREFIX=arm-linux-gnueabihf
+          ;;
+        aarch64)
+          install-deps arm64 g++-aarch64-linux-gnu
+          export TOOLCHAIN=$(pwd)/cmake/linux-cross.cmake \
+                TOOLCHAIN_PREFIX=aarch64-linux-gnu
+          ;;
+        esac
 
     # Use the ccache compiler cache to speed up builds
     # Note: ccache does not support Windows
