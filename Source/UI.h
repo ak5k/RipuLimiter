@@ -72,9 +72,12 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> gainAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> driveAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> kneeAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> holdAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> releaseAttachment;
 
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> linkAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> oversampleAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> cascadeAttachment;
     //[/UserVariables]
 
     //==============================================================================
@@ -85,6 +88,9 @@ private:
     std::unique_ptr<juce::Slider> driveSlider;
     std::unique_ptr<juce::ToggleButton> oversampleButton;
     std::unique_ptr<juce::Slider> kneeSlider;
+    std::unique_ptr<juce::ToggleButton> cascadeButton;
+    std::unique_ptr<juce::Slider> holdSlider;
+    std::unique_ptr<juce::Slider> releaseSlider;
 
 
     //==============================================================================

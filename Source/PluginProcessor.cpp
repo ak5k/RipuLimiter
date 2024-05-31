@@ -54,8 +54,23 @@ juce::AudioProcessorValueTreeState::ParameterLayout RipuLimiterAudioProcessor::c
         ));
     }
 
+    {
+        auto attributes = AudioParameterFloatAttributes().withLabel(" ms");
+        params.push_back(std::make_unique<AudioParameterFloat>(
+            "hold", "Hold", juce::NormalisableRange<float>(0.0f, 20.0f, 0.1f), 1.0f, attributes
+        ));
+    }
+
+    {
+        auto attributes = AudioParameterFloatAttributes().withLabel(" ms");
+        params.push_back(std::make_unique<AudioParameterFloat>(
+            "release", "Release", juce::NormalisableRange<float>(5.0f, 300.0f, 0.1f, 0.38f), 40.0f, attributes
+        ));
+    }
+
     params.push_back(std::make_unique<juce::AudioParameterBool>("link", "Link", false));
     params.push_back(std::make_unique<juce::AudioParameterBool>("oversample", "Oversample", false));
+    params.push_back(std::make_unique<juce::AudioParameterBool>("cascade", "Cascade", false));
 
     return {params.begin(), params.end()};
 }
@@ -137,6 +152,8 @@ void RipuLimiterAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
     gainSmoothed.resize(numChannels);
     driveSmoothed.resize(numChannels);
     kneeSmoothed.resize(numChannels);
+    holdSmoothed.resize(numChannels);
+    releaseSmoothed.resize(numChannels);
 
     for (auto& i : thresholdSmoothed)
         i.reset(sampleRate, 0.1);
@@ -145,6 +162,10 @@ void RipuLimiterAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
     for (auto& i : driveSmoothed)
         i.reset(sampleRate, 0.1);
     for (auto& i : kneeSmoothed)
+        i.reset(sampleRate, 0.1);
+    for (auto& i : holdSmoothed)
+        i.reset(sampleRate, 0.1);
+    for (auto& i : releaseSmoothed)
         i.reset(sampleRate, 0.1);
 
     oversampling.reset(new juce::dsp::Oversampling<double>(
@@ -207,9 +228,16 @@ void RipuLimiterAudioProcessor::processBlockInternal(juce::AudioBuffer<T>& buffe
     auto threshold = juce::Decibels::decibelsToGain(apvts.getRawParameterValue("thresh")->load());
     auto gain = juce::Decibels::decibelsToGain(apvts.getRawParameterValue("gain")->load());
     auto drive = juce::Decibels::decibelsToGain(apvts.getRawParameterValue("drive")->load());
+
     auto knee = apvts.getRawParameterValue("knee")->load();
+    auto hold = apvts.getRawParameterValue("hold")->load();
+    auto release = apvts.getRawParameterValue("release")->load();
+
     bool isLinked = (bool)apvts.getRawParameterValue("link")->load();
     bool isOversampled = (bool)apvts.getRawParameterValue("oversample")->load();
+    bool cascade = (bool)apvts.getRawParameterValue("cascade")->load();
+    for (auto& limiter : limiters)
+        limiter.setCascade(cascade);
 
     for (auto& i : thresholdSmoothed)
         i.setTargetValue(threshold);
@@ -219,6 +247,10 @@ void RipuLimiterAudioProcessor::processBlockInternal(juce::AudioBuffer<T>& buffe
         i.setTargetValue(drive);
     for (auto& i : kneeSmoothed)
         i.setTargetValue(knee);
+    for (auto& i : holdSmoothed)
+        i.setTargetValue(hold);
+    for (auto& i : releaseSmoothed)
+        i.setTargetValue(release);
 
     juce::dsp::AudioBlock<T> block(bufferIn);
     juce::dsp::AudioBlock<T> oversampledBlock;
@@ -244,9 +276,15 @@ void RipuLimiterAudioProcessor::processBlockInternal(juce::AudioBuffer<T>& buffe
         oversampling.get()->processSamplesDown(block);
         setLatencySamples(limiters[0].latencySamples() + oversampling.get()->getLatencyInSamples());
     }
+    else
+    {
+        setLatencySamples(limiters[0].latencySamples());
+    }
 
     if ((int)delayLine.getDelay() != getLatencySamples())
     {
+        if (delayLine.getMaximumDelayInSamples() < getLatencySamples())
+            delayLine.setMaximumDelayInSamples(getLatencySamples());
         delayLine.setDelay(getLatencySamples());
         delayLine.reset();
     }
@@ -261,8 +299,12 @@ void RipuLimiterAudioProcessor::processBlockInternal(juce::AudioBuffer<T>& buffe
             threshold = thresholdSmoothed[channel].getNextValue();
             gain = gainSmoothed[channel].getNextValue();
             drive = driveSmoothed[channel].getNextValue();
+            hold = holdSmoothed[channel].getNextValue();
+            release = releaseSmoothed[channel].getNextValue();
 
             limiters[channel].setThreshold(threshold);
+            limiters[channel].setHoldMs(hold);
+            limiters[channel].setReleaseMs(release);
 
             auto newSample = channelData[sample];
 

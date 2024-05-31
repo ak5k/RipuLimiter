@@ -97,6 +97,8 @@ class RipuLimiterAudioProcessor : public juce::AudioProcessor
     std::vector<juce::LinearSmoothedValue<float>> gainSmoothed;
     std::vector<juce::LinearSmoothedValue<float>> driveSmoothed;
     std::vector<juce::LinearSmoothedValue<float>> kneeSmoothed;
+    std::vector<juce::LinearSmoothedValue<float>> holdSmoothed;
+    std::vector<juce::LinearSmoothedValue<float>> releaseSmoothed;
 
     juce::dsp::DelayLine<double, juce::dsp::DelayLineInterpolationTypes::Linear> delayLine;
     std::unique_ptr<juce::dsp::Oversampling<double>> oversampling;

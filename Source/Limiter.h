@@ -9,6 +9,7 @@ struct ExponentialRelease
 {
     double releaseSlew;
     double output = 1;
+    int releaseSamples = 0;
 
     ExponentialRelease() = default;
 
@@ -16,7 +17,14 @@ struct ExponentialRelease
     {
         // The exact value is `1 - exp(-1/releaseSamples)`
         // but this is a decent approximation
-        releaseSlew = (1 / (releaseSamples + 1));
+        // releaseSlew = (1 / (releaseSamples + 1));
+        setReleaseSlew(releaseSamples);
+    }
+
+    void setReleaseSlew(int newReleaseSamples)
+    {
+        releaseSamples = newReleaseSamples;
+        releaseSlew = (1 / (releaseSamples + 1.0));
     }
 
     double step(double input)
@@ -30,10 +38,15 @@ struct ExponentialRelease
 
 struct LimiterAttackHoldRelease
 {
+    std::array<ExponentialRelease, 8> releases; // array of 8 ExponentialRelease objects
+    bool cascade = true;
+
     double limit = 1;
     double attackMs = 4 / 3.0;
-    double holdMs = 15;
-    double releaseMs = 5;
+    double holdMs = 20;
+    double releaseMs = 300;
+
+    double sampleRate = 44100;
 
     double gainReduction = 1;
 
@@ -45,7 +58,6 @@ struct LimiterAttackHoldRelease
     juce::dsp::DelayLine<double, juce::dsp::DelayLineInterpolationTypes::Linear> delayLine;
 
     // ExponentialRelease release; // see the previous example code
-    std::array<ExponentialRelease, 8> releases; // array of 8 ExponentialRelease objects
 
     int attackSamples = 0;
 
@@ -57,8 +69,9 @@ struct LimiterAttackHoldRelease
         this->limit = newLimit;
     }
 
-    void configure(double sampleRate)
+    void configure(double newSampleRate)
     {
+        sampleRate = newSampleRate;
         attackSamples = (int)(attackMs * 0.001 * sampleRate);
 
         int holdSamples = (int)(holdMs * 0.001 * sampleRate);
@@ -81,6 +94,31 @@ struct LimiterAttackHoldRelease
         return attackSamples;
     }
 
+    void setHoldMs(double newHoldMs)
+    {
+        if (approximatelyEqual(holdMs, newHoldMs))
+            return;
+
+        holdMs = newHoldMs;
+        int holdSamples = (int)(holdMs * 0.001 * sampleRate);
+        peakHold.resize(attackSamples + holdSamples);
+    }
+
+    void setReleaseMs(double newReleaseMs)
+    {
+        releaseMs = newReleaseMs;
+        double releaseSamples = releaseMs * 0.001 * sampleRate;
+        // release = ExponentialRelease(releaseSamples);
+        for (auto& release : releases)
+            if (release.releaseSamples != releaseSamples)
+                release.setReleaseSlew(releaseSamples);
+    }
+
+    void setCascade(bool val)
+    {
+        cascade = val;
+    }
+
     double gain(double v)
     {
         double maxGain = 1;
@@ -88,8 +126,12 @@ struct LimiterAttackHoldRelease
             maxGain = limit / std::abs(v);
         double movingMin = -peakHold(-maxGain);
         // double releaseEnvelope = release.step(movingMin);
-        for (auto& release : releases)
-            movingMin = release.step(movingMin);
+
+        int n = cascade ? (int)releases.size() : 1;
+        // for (auto& release : releases)
+        for (int i = 0; i < n; ++i)
+            movingMin = releases[i].step(movingMin);
+
         double releaseEnvelope = movingMin;
         // return releaseEnvelope;
         return smoother(releaseEnvelope);
