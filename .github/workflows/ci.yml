@@ -293,7 +293,8 @@ jobs:
         shopt -s extglob  # Enable bash extended globbing
         rm -rf build-${{runner.os}}
         mkdir build-${{runner.os}}
-        mv *_artefacts/${{ env.BUILD_TYPE }}/@(VST3|AU|AAX)/*.@(vst3|component|aax) build-${{runner.os}}/ 
+        mv *_artefacts/${{ env.BUILD_TYPE }}/@(VST3|AU|AAX)/*.@(vst3|component|aax) build-${{runner.os}}/ || true
+        mv *_artefacts/@(VST3|AU|AAX)/*.@(vst3|component|aax) build-${{runner.os}}/ || true
     
     - name: set filename
       id: filename
