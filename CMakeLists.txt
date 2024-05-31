@@ -111,6 +111,11 @@ if(NOT juce_POPULATED)
 
     file(APPEND "${FETCHCONTENT_BASE_DIR}/juce-src/CMakeLists.txt" 
         "target_include_directories(juceaide INTERFACE \"../libcxx-5.0.2.src\")\n")
+
+    file(READ "${FETCHCONTENT_BASE_DIR}/juce-src/CMakeLists.txt" content)
+    set(content "include_directories(BEFORE \"../libcxx-5.0.2.src/include\")\n${content}")
+    file(WRITE "${FETCHCONTENT_BASE_DIR}/juce-src/CMakeLists.txt" "${content}")
+
   endif()
 endif()
 add_subdirectory(${juce_SOURCE_DIR})
