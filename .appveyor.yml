@@ -82,16 +82,15 @@ for:
         tar xf cmake-3.22.6-macos-universal.tar.gz
         export PATH=$(pwd)/cmake-3.22.6-macos-universal/CMake.app/Contents/bin:$PATH
 
-        # DEPLOY_TARGET=10.9
+        export HOMEBREW_NO_AUTO_UPDATE=1
+
+        DEPLOY_TARGET=10.9
         # export SDKROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX10.13.sdk
         # curl -fsSLO https://github.com/phracker/MacOSX-SDKs/releases/download/10.15/MacOSX10.13.sdk.tar.xz
         # # echo 608a89db8b4be150a945871230b5ba5d4767a8500bc5fe76ddf10f5cec5ef513 MacOSX10.13.sdk.tar.xz | sha256sum -c
         # sudo tar xf MacOSX10.13.sdk.tar.xz -C /Library/Developer/CommandLineTools/SDKs
         # sudo xcode-select -s /Library/Developer/CommandLineTools
 
-        export HOMEBREW_NO_AUTO_UPDATE=1
-        brew install gnu-sed
-        brew install llvm
 
         sudo xcode-select -s /Applications/Xcode-9.4.1.app
 
@@ -100,16 +99,6 @@ for:
 
     build_script: |-
         cmake -B build -DCMAKE_BUILD_TYPE=Release -DMAC_OS_X_VERSION_10_14=1 \
-        -DCMAKE_C_COMPILER=$(brew --prefix llvm)/bin/clang \
-        -DCMAKE_CXX_COMPILER=$(brew --prefix llvm)/bin/clang++ \
-        -DCMAKE_OSX_ARCHITECTURES=$ARCH -DCMAKE_OSX_DEPLOYMENT_TARGET=$DEPLOY_TARGET || true
-
-        # find ./Libs/ -type f \( -name "*.cpp" -o -name "*.h" -o -name "*.hpp" -o -name "*.c" \) -exec echo {} \; -exec gsed -i 's|#include <optional>|#include <experimental/optional>|g' {} \;
-        # find ./Libs/ -type f \( -name "*.cpp" -o -name "*.h" -o -name "*.hpp" -o -name "*.c" \) -exec echo {} \; -exec gsed -i 's|#include <variant>|#include <experimental/variant>|g' {} \;
-
-        cmake -B build -DCMAKE_BUILD_TYPE=Release -DMAC_OS_X_VERSION_10_14=1 \
-        -DCMAKE_C_COMPILER=$(brew --prefix llvm)/bin/clang \
-        -DCMAKE_CXX_COMPILER=$(brew --prefix llvm)/bin/clang++ \
         -DCMAKE_OSX_ARCHITECTURES=$ARCH -DCMAKE_OSX_DEPLOYMENT_TARGET=$DEPLOY_TARGET
 
         cmake --build build

@@ -82,6 +82,20 @@ string(TIMESTAMP BUILD_DATE "%Y%m%d")
 include(FetchContent)
 set(FETCHCONTENT_BASE_DIR "${PROJECT_SOURCE_DIR}/Libs" CACHE PATH "External dependencies path." FORCE)
 
+# 32-bit mac builds require macOS 10.14 Mojave, Xcode 9, and libc++ to be included
+if (APPLE AND CMAKE_OSX_ARCHITECTURES MATCHES "i386")
+  set(FILE_URL "https://releases.llvm.org/5.0.2/libcxx-5.0.2.src.tar.xz")
+  set(FILE_PATH "${FETCHCONTENT_BASE_DIR}/libcxx-5.0.2.src.tar.xz")
+
+  file(DOWNLOAD ${FILE_URL} ${FILE_PATH}
+      STATUS status
+      LOG log)
+
+  execute_process(COMMAND tar -xf ${FILE_PATH} -C ${FETCHCONTENT_BASE_DIR}
+                  RESULT_VARIABLE result)
+  include_directories(${FETCHCONTENT_BASE_DIR}/libcxx-5.0.2.src/include)
+endif()
+
 FetchContent_Declare(juce
     GIT_REPOSITORY https://github.com/juce-framework/JUCE.git
     GIT_TAG        ${JUCE_TAG}
