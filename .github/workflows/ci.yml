@@ -94,7 +94,7 @@ jobs:
             name: 'linux arm64',
             os: ubuntu-22.04,
             arch: aarch64,
-            cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache",
+            cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++",
             pkg_mgr: "sudo apt-get -y",
           }
         - {
@@ -108,7 +108,7 @@ jobs:
             name: 'linux arm32',
             os: ubuntu-22.04,
             arch: armv7l,
-            cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache",
+            cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++",
             pkg_mgr: "sudo apt-get -y",
           }
 
