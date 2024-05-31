@@ -91,7 +91,7 @@ for:
 
         export HOMEBREW_NO_AUTO_UPDATE=1
         brew install gnu-sed
-        brew install llvm@5
+        brew install llvm
 
         sudo xcode-select -s /Applications/Xcode-9.4.1.app
 
