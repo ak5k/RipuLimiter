@@ -1,7 +1,8 @@
 ### Project ###
-**/[Bb]uild*/
+**/*[Bb]uild*/
 /Libs/
 .vs*/
+.idea*/
 juce*/
 
 # Created by https://www.toptal.com/developers/gitignore/api/C++,CMake,macos,windows
