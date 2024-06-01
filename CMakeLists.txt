@@ -4,9 +4,7 @@ cmake_minimum_required(VERSION 3.22)
 
 project(RipuLimiter VERSION 1.0.0)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_STANDARD 20)
 add_definitions(-D_SILENCE_ALL_CXX23_DEPRECATION_WARNINGS)
 
 ### Dependency versions ###
@@ -83,7 +81,6 @@ include(FetchContent)
 set(FETCHCONTENT_BASE_DIR "${PROJECT_SOURCE_DIR}/Libs" CACHE PATH "External dependencies path." FORCE)
 
 # 32-bit mac builds require macOS 10.14 Mojave, Xcode 9, and libc++ to be included
-
 FetchContent_Declare(juce
         GIT_REPOSITORY https://github.com/juce-framework/JUCE.git
         GIT_TAG ${JUCE_TAG}
@@ -209,23 +206,17 @@ target_sources(${PROJECT_NAME}
 if (MSVC)
     # set_source_files_properties(${SOURCES} PROPERTIES COMPILE_FLAGS "/W4")
 else ()
-    string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" LOWERCASE_PROCESSOR)
-    if (NOT APPLE AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+#     string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" LOWERCASE_PROCESSOR)
+#     if (NOT APPLE AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         target_compile_options(${PROJECT_NAME} PUBLIC -march=x86-64-v3)
-    endif ()
+#     endif ()
     message("non-msvc compiler interface")
     set(MY_FLAGS
             -Wall
             -Wextra
-            -Wpedantic
-            #            -Werror
-            -Wno-float-conversion
-            -Wno-shorten-64-to-32
             -Wno-sign-compare
             -Wno-sign-conversion
             -Wno-unused-parameter
-            -Wno-unused-private-field
-            -Wno-unused-variable
     )
     string(JOIN " " MY_FLAGS_STR ${MY_FLAGS})
     set_source_files_properties(${SOURCES}
