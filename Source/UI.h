@@ -37,32 +37,34 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class UI  : public juce::Component,
-            public juce::Timer,
-            public juce::Slider::Listener,
-            public juce::Button::Listener
+class UI : public juce::Component,
+           public juce::Timer,
+           public juce::Slider::Listener,
+           public juce::Button::Listener
 {
 public:
     //==============================================================================
-    UI (RipuLimiterAudioProcessor& p);
+    explicit UI(RipuLimiterAudioProcessor& p);
+
     ~UI() override;
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
     void timerCallback() override
     {
-        levelMeter.get()->setLevelBar(audioProcessor.getGainReduction());
-        levelMeter.get()->repaint();
+        levelMeter->setLevelBar(audioProcessor.getGainReduction());
+        levelMeter->repaint();
     }
 
     //[/UserMethods]
 
-    void paint (juce::Graphics& g) override;
+    void paint(juce::Graphics& g) override;
+
     void resized() override;
-    void sliderValueChanged (juce::Slider* sliderThatWasMoved) override;
-    void buttonClicked (juce::Button* buttonThatWasClicked) override;
 
+    void sliderValueChanged(juce::Slider* sliderThatWasMoved) override;
 
+    void buttonClicked(juce::Button* buttonThatWasClicked) override;
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.

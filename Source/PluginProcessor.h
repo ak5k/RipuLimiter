@@ -9,17 +9,21 @@
  */
 class RipuLimiterAudioProcessor : public juce::AudioProcessor
 {
-  public:
+public:
     //==============================================================================
     RipuLimiterAudioProcessor();
+
     ~RipuLimiterAudioProcessor() override;
 
     //==============================================================================
     void prepareToPlay(double sampleRate, int samplesPerBlock) override;
+
     void releaseResources() override;
 
 #ifndef JucePlugin_PreferredChannelConfigurations
+
     bool isBusesLayoutSupported(const BusesLayout& layouts) const override;
+
 #endif
 
     bool supportsDoublePrecisionProcessing() const override
@@ -38,8 +42,8 @@ class RipuLimiterAudioProcessor : public juce::AudioProcessor
         processBlockInternal(buffer, midiMessages);
     }
 
-    template <typename T>
-    void processBlockInternal(juce::AudioBuffer<T>&, juce::MidiBuffer&);
+    template<typename T>
+    void processBlockInternal(juce::AudioBuffer<T>&, [[maybe_unused]] [[maybe_unused]] juce::MidiBuffer&);
 
     void processBlockBypassed(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages) override
     {
@@ -51,30 +55,40 @@ class RipuLimiterAudioProcessor : public juce::AudioProcessor
         processBlockBypassedInternal(buffer, midiMessages);
     }
 
-    template <typename T>
-    void processBlockBypassedInternal(juce::AudioBuffer<T>& buffer, juce::MidiBuffer& midiMessages);
+    template<typename T>
+    void processBlockBypassedInternal(juce::AudioBuffer<T>& buffer,
+            [[maybe_unused]] [[maybe_unused]] juce::MidiBuffer& midiMessages);
 
     //==============================================================================
     juce::AudioProcessorEditor* createEditor() override;
+
     bool hasEditor() const override;
 
     //==============================================================================
     const juce::String getName() const override;
 
     bool acceptsMidi() const override;
+
     bool producesMidi() const override;
+
     bool isMidiEffect() const override;
+
     double getTailLengthSeconds() const override;
 
     //==============================================================================
     int getNumPrograms() override;
+
     int getCurrentProgram() override;
+
     void setCurrentProgram(int index) override;
+
     const juce::String getProgramName(int index) override;
+
     void changeProgramName(int index, const juce::String& newName) override;
 
     //==============================================================================
     void getStateInformation(juce::MemoryBlock& destData) override;
+
     void setStateInformation(const void* data, int sizeInBytes) override;
 
     float getGainReduction() const
@@ -87,8 +101,9 @@ class RipuLimiterAudioProcessor : public juce::AudioProcessor
         return apvts;
     }
 
-  private:
-    juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
+private:
+    static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
+
     juce::AudioBuffer<double> tempBufferDouble;
 
     std::atomic<float> gainReduction;

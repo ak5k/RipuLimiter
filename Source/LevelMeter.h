@@ -4,7 +4,7 @@
 
 class LevelMeter : public juce::Component
 {
-  public:
+public:
     LevelMeter()
     {
         setOpaque(false);
@@ -40,7 +40,7 @@ class LevelMeter : public juce::Component
         levelBar = newLevel;
     }
 
-  private:
+private:
     juce::Colour colour;
 
     float levelBar = 0.0f;

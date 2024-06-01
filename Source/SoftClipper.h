@@ -7,7 +7,7 @@
 // #define MAGIC_NUMBER 2.08136898
 #define MAGIC_NUMBER std::log2(std::exp(1.0)) * std::log2(std::exp(1.0))
 
-template <typename T>
+template<typename T>
 static T sign(T num)
 {
     if (num > 0)
@@ -17,7 +17,7 @@ static T sign(T num)
     return 0;
 }
 
-template <typename T>
+template<typename T>
 T SoftClipper(T x, T drive, T knee)
 {
     // x *= drive;
@@ -34,14 +34,14 @@ T SoftClipper(T x, T drive, T knee)
     // auto db2log = 0.11512925464970228420089957273422; // ln(10) / 20
 
     // thresh = exp(slider1 * db2log);
-    auto thresh = juce::Decibels::decibelsToGain(slider1);
+//    auto thresh = juce::Decibels::decibelsToGain(slider1);
     auto threshdb = slider1;
     // ceiling = exp(slider2 * db2log);
     auto ceiling = juce::Decibels::decibelsToGain(slider2);
     auto ceildb = slider2;
     // makeup = exp((ceildb - threshdb) * db2log);
     auto makeup = juce::Decibels::decibelsToGain(ceildb - threshdb);
-    auto makeupdb = ceildb - threshdb;
+//    auto makeupdb = ceildb - threshdb;
 
     // soft knee
     auto sc = -knee + ceildb;
@@ -56,7 +56,7 @@ T SoftClipper(T x, T drive, T knee)
     auto scmult = std::abs((ceildb - sc) / (peakdb - sc));
 
     auto spl0 = x;
-    auto peak = std::abs(spl0);
+//    auto peak = std::abs(spl0);
     spl0 = spl0 * makeup;
     auto sign0 = sign(spl0);
     auto abs0 = std::abs(spl0);
@@ -65,9 +65,9 @@ T SoftClipper(T x, T drive, T knee)
     // abs0 > scv ? (spl0 = sign0 * (scv + exp(overdb0 * scmult) * db2log););
     if (!(approximatelyEqual(knee, (T)0)) && abs0 > scv)
         spl0 =
-            sign0 * static_cast<T>(
+                sign0 * static_cast<T>(
                         juce::Decibels::decibelsToGain(juce::dsp::FastMathApproximations::exp(overdb0 * scmult) + scv)
-                    );
+                );
 
     spl0 = std::min(ceiling, std::abs(spl0)) * sign(spl0);
     return spl0;

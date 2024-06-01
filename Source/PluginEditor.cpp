@@ -3,9 +3,7 @@
 
 //==============================================================================
 RipuLimiterAudioProcessorEditor::RipuLimiterAudioProcessorEditor(RipuLimiterAudioProcessor& p)
-    : AudioProcessorEditor(&p)
-    , audioProcessor(p)
-    , ui(p)
+        : AudioProcessorEditor(&p), audioProcessor(p), ui(p)
 {
     openGLContext.attachTo(*this);
     addAndMakeVisible(ui);

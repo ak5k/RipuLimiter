@@ -1,3 +1,4 @@
+#pragma clang diagnostic push
 /*
   ==============================================================================
 
@@ -27,7 +28,7 @@
 
 //==============================================================================
 UI::UI(RipuLimiterAudioProcessor& p)
-    : audioProcessor(p)
+        : audioProcessor(p)
 {
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
@@ -115,32 +116,34 @@ UI::UI(RipuLimiterAudioProcessor& p)
 
     //[UserPreSize]
     threshAttachment.reset(
-        new juce::AudioProcessorValueTreeState::SliderAttachment(audioProcessor.getAPVTS(), "thresh", *threshSilder)
+            new juce::AudioProcessorValueTreeState::SliderAttachment(audioProcessor.getAPVTS(), "thresh", *threshSilder)
     );
     gainAttachment.reset(
-        new juce::AudioProcessorValueTreeState::SliderAttachment(audioProcessor.getAPVTS(), "gain", *gainSlider)
+            new juce::AudioProcessorValueTreeState::SliderAttachment(audioProcessor.getAPVTS(), "gain", *gainSlider)
     );
     driveAttachment.reset(
-        new juce::AudioProcessorValueTreeState::SliderAttachment(audioProcessor.getAPVTS(), "drive", *driveSlider)
+            new juce::AudioProcessorValueTreeState::SliderAttachment(audioProcessor.getAPVTS(), "drive", *driveSlider)
     );
     kneeAttachment.reset(
-        new juce::AudioProcessorValueTreeState::SliderAttachment(audioProcessor.getAPVTS(), "knee", *kneeSlider)
+            new juce::AudioProcessorValueTreeState::SliderAttachment(audioProcessor.getAPVTS(), "knee", *kneeSlider)
     );
     holdAttachment.reset(
-        new juce::AudioProcessorValueTreeState::SliderAttachment(audioProcessor.getAPVTS(), "hold", *holdSlider)
+            new juce::AudioProcessorValueTreeState::SliderAttachment(audioProcessor.getAPVTS(), "hold", *holdSlider)
     );
     releaseAttachment.reset(
-        new juce::AudioProcessorValueTreeState::SliderAttachment(audioProcessor.getAPVTS(), "release", *releaseSlider)
+            new juce::AudioProcessorValueTreeState::SliderAttachment(audioProcessor.getAPVTS(), "release",
+                    *releaseSlider)
     );
 
     linkAttachment.reset(
-        new juce::AudioProcessorValueTreeState::ButtonAttachment(audioProcessor.getAPVTS(), "link", *linkButton)
+            new juce::AudioProcessorValueTreeState::ButtonAttachment(audioProcessor.getAPVTS(), "link", *linkButton)
     );
     oversampleAttachment.reset(new juce::AudioProcessorValueTreeState::ButtonAttachment(
-        audioProcessor.getAPVTS(), "oversample", *oversampleButton
+            audioProcessor.getAPVTS(), "oversample", *oversampleButton
     ));
     cascadeAttachment.reset(
-        new juce::AudioProcessorValueTreeState::ButtonAttachment(audioProcessor.getAPVTS(), "cascade", *cascadeButton)
+            new juce::AudioProcessorValueTreeState::ButtonAttachment(audioProcessor.getAPVTS(), "cascade",
+                    *cascadeButton)
     );
 
     //[/UserPreSize]
@@ -265,14 +268,14 @@ void UI::sliderValueChanged(juce::Slider* sliderThatWasMoved)
     {
         //[UserSliderCode_threshSilder] -- add your slider handling code here..
         if (linkButton->getToggleState())
-            gainSlider.get()->setValue(threshSilder.get()->getValue(), juce::NotificationType::sendNotificationAsync);
+            gainSlider->setValue(threshSilder->getValue(), juce::NotificationType::sendNotificationAsync);
         //[/UserSliderCode_threshSilder]
     }
     else if (sliderThatWasMoved == gainSlider.get())
     {
         //[UserSliderCode_gainSlider] -- add your slider handling code here..
         if (linkButton->getToggleState())
-            threshSilder.get()->setValue(gainSlider.get()->getValue(), juce::NotificationType::sendNotificationAsync);
+            threshSilder->setValue(gainSlider->getValue(), juce::NotificationType::sendNotificationAsync);
         //[/UserSliderCode_gainSlider]
     }
     else if (sliderThatWasMoved == driveSlider.get())
@@ -309,7 +312,7 @@ void UI::buttonClicked(juce::Button* buttonThatWasClicked)
     {
         //[UserButtonCode_linkButton] -- add your button handler code here..
         if (linkButton->getToggleState())
-            gainSlider.get()->setValue(threshSilder.get()->getValue(), juce::NotificationType::sendNotificationAsync);
+            gainSlider->setValue(threshSilder->getValue(), juce::NotificationType::sendNotificationAsync);
         //[/UserButtonCode_linkButton]
     }
     else if (buttonThatWasClicked == oversampleButton.get())
@@ -409,3 +412,5 @@ END_JUCER_METADATA
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
+
+#pragma clang diagnostic pop

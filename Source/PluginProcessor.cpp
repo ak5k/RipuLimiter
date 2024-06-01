@@ -1,26 +1,27 @@
 #include "PluginProcessor.h"
+
+#include <memory>
 #include "PluginEditor.h"
 #include "SoftClipper.h"
 
 //==============================================================================
 RipuLimiterAudioProcessor::RipuLimiterAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
-    : AudioProcessor(BusesProperties()
+        : AudioProcessor(BusesProperties()
 #if !JucePlugin_IsMidiEffect
 #if !JucePlugin_IsSynth
-                         .withInput("Input", juce::AudioChannelSet::stereo(), true)
+                .withInput("Input", juce::AudioChannelSet::stereo(), true)
 #endif
-                         .withOutput("Output", juce::AudioChannelSet::stereo(), true)
+                .withOutput("Output", juce::AudioChannelSet::stereo(), true)
 #endif
-      )
+)
 #endif
-    , apvts(*this, nullptr, "PARAMETERS", createParameterLayout())
+        , apvts(*this, nullptr, "PARAMETERS", createParameterLayout())
 {
 }
 
 RipuLimiterAudioProcessor::~RipuLimiterAudioProcessor()
-{
-}
+= default;
 
 juce::AudioProcessorValueTreeState::ParameterLayout RipuLimiterAudioProcessor::createParameterLayout()
 {
@@ -29,42 +30,42 @@ juce::AudioProcessorValueTreeState::ParameterLayout RipuLimiterAudioProcessor::c
     {
         auto attributes = AudioParameterFloatAttributes().withLabel(" dB");
         params.push_back(std::make_unique<AudioParameterFloat>(
-            "thresh", "Threshold", juce::NormalisableRange<float>(-24.0f, 0.0f, 0.1f), -0.1f, attributes
+                "thresh", "Threshold", juce::NormalisableRange<float>(-24.0f, 0.0f, 0.1f), -0.1f, attributes
         ));
     }
 
     {
         auto attributes = AudioParameterFloatAttributes().withLabel(" dB");
         params.push_back(std::make_unique<AudioParameterFloat>(
-            "gain", "Gain", juce::NormalisableRange<float>(-24.0f, 0.0f, 0.1f), -0.1f, attributes
+                "gain", "Gain", juce::NormalisableRange<float>(-24.0f, 0.0f, 0.1f), -0.1f, attributes
         ));
     }
 
     {
         auto attributes = AudioParameterFloatAttributes().withLabel(" dB");
         params.push_back(std::make_unique<AudioParameterFloat>(
-            "drive", "Drive", juce::NormalisableRange<float>(0.0f, 24.0f, 0.1f), 0.0f, attributes
+                "drive", "Drive", juce::NormalisableRange<float>(0.0f, 24.0f, 0.1f), 0.0f, attributes
         ));
     }
 
     {
         auto attributes = AudioParameterFloatAttributes().withLabel(" dB");
         params.push_back(std::make_unique<AudioParameterFloat>(
-            "knee", "Knee", juce::NormalisableRange<float>(0.0f, 6.0f, 0.1f), 0.0f, attributes
+                "knee", "Knee", juce::NormalisableRange<float>(0.0f, 6.0f, 0.1f), 0.0f, attributes
         ));
     }
 
     {
         auto attributes = AudioParameterFloatAttributes().withLabel(" ms");
         params.push_back(std::make_unique<AudioParameterFloat>(
-            "hold", "Hold", juce::NormalisableRange<float>(0.0f, 20.0f, 0.1f), 1.0f, attributes
+                "hold", "Hold", juce::NormalisableRange<float>(0.0f, 20.0f, 0.1f), 1.0f, attributes
         ));
     }
 
     {
         auto attributes = AudioParameterFloatAttributes().withLabel(" ms");
         params.push_back(std::make_unique<AudioParameterFloat>(
-            "release", "Release", juce::NormalisableRange<float>(5.0f, 300.0f, 0.1f, 0.38f), 40.0f, attributes
+                "release", "Release", juce::NormalisableRange<float>(5.0f, 300.0f, 0.1f, 0.38f), 40.0f, attributes
         ));
     }
 
@@ -72,7 +73,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout RipuLimiterAudioProcessor::c
     params.push_back(std::make_unique<juce::AudioParameterBool>("oversample", "Oversample", false));
     params.push_back(std::make_unique<juce::AudioParameterBool>("cascade", "Cascade", false));
 
-    return {params.begin(), params.end()};
+    return { params.begin(), params.end() };
 }
 
 //==============================================================================
@@ -116,7 +117,7 @@ double RipuLimiterAudioProcessor::getTailLengthSeconds() const
 int RipuLimiterAudioProcessor::getNumPrograms()
 {
     return 1; // NB: some hosts don't cope very well if you tell them there are 0 programs,
-              // so this should be at least 1, even if you're not really implementing programs.
+    // so this should be at least 1, even if you're not really implementing programs.
 }
 
 int RipuLimiterAudioProcessor::getCurrentProgram()
@@ -145,7 +146,7 @@ void RipuLimiterAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
         return;
 
     limiters.resize(numChannels);
-    for (auto& limiter : limiters)
+    for (auto& limiter: limiters)
         limiter.configure(sampleRate);
 
     thresholdSmoothed.resize(numChannels);
@@ -155,35 +156,35 @@ void RipuLimiterAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
     holdSmoothed.resize(numChannels);
     releaseSmoothed.resize(numChannels);
 
-    for (auto& i : thresholdSmoothed)
+    for (auto& i: thresholdSmoothed)
         i.reset(sampleRate, 0.1);
-    for (auto& i : gainSmoothed)
+    for (auto& i: gainSmoothed)
         i.reset(sampleRate, 0.1);
-    for (auto& i : driveSmoothed)
+    for (auto& i: driveSmoothed)
         i.reset(sampleRate, 0.1);
-    for (auto& i : kneeSmoothed)
+    for (auto& i: kneeSmoothed)
         i.reset(sampleRate, 0.1);
-    for (auto& i : holdSmoothed)
+    for (auto& i: holdSmoothed)
         i.reset(sampleRate, 0.1);
-    for (auto& i : releaseSmoothed)
+    for (auto& i: releaseSmoothed)
         i.reset(sampleRate, 0.1);
 
-    oversampling.reset(new juce::dsp::Oversampling<double>(
-        numChannels, 4, juce::dsp::Oversampling<double>::filterHalfBandPolyphaseIIR, true
-    ));
-    oversampling.get()->initProcessing(samplesPerBlock);
+    oversampling = std::make_unique<juce::dsp::Oversampling<double>>(
+            numChannels, 4, juce::dsp::Oversampling<double>::filterHalfBandPolyphaseIIR, true
+    );
+    oversampling->initProcessing(samplesPerBlock);
 
     tempBufferDouble.setSize(numChannels, samplesPerBlock);
 
     delayLine.prepare(
-        {sampleRate,
-         (uint32_t)(limiters[0].latencySamples() + oversampling.get()->getLatencyInSamples()),
-         (uint32_t)numChannels}
+            { sampleRate,
+              (uint32_t)(limiters[0].latencySamples() + oversampling->getLatencyInSamples()),
+              (uint32_t)numChannels }
     );
 
     bool isOversampled = (bool)apvts.getRawParameterValue("oversample")->load();
     if (isOversampled)
-        setLatencySamples(limiters[0].latencySamples() + oversampling.get()->getLatencyInSamples());
+        setLatencySamples((int)(limiters[0].latencySamples() + oversampling->getLatencyInSamples()));
     else
         setLatencySamples(limiters[0].latencySamples());
 
@@ -199,6 +200,7 @@ void RipuLimiterAudioProcessor::releaseResources()
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
+
 bool RipuLimiterAudioProcessor::isBusesLayoutSupported(const BusesLayout& layouts) const
 {
 #if JucePlugin_IsMidiEffect
@@ -213,10 +215,12 @@ bool RipuLimiterAudioProcessor::isBusesLayoutSupported(const BusesLayout& layout
     return true;
 #endif
 }
+
 #endif
 
-template <typename T>
-void RipuLimiterAudioProcessor::processBlockInternal(juce::AudioBuffer<T>& bufferIn, juce::MidiBuffer& midiMessages)
+template<typename T>
+void RipuLimiterAudioProcessor::processBlockInternal(juce::AudioBuffer<T>& bufferIn,
+        [[maybe_unused]] juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels = getTotalNumInputChannels();
@@ -236,27 +240,27 @@ void RipuLimiterAudioProcessor::processBlockInternal(juce::AudioBuffer<T>& buffe
     bool isLinked = (bool)apvts.getRawParameterValue("link")->load();
     bool isOversampled = (bool)apvts.getRawParameterValue("oversample")->load();
     bool cascade = (bool)apvts.getRawParameterValue("cascade")->load();
-    for (auto& limiter : limiters)
+    for (auto& limiter: limiters)
         limiter.setCascade(cascade);
 
-    for (auto& i : thresholdSmoothed)
+    for (auto& i: thresholdSmoothed)
         i.setTargetValue(threshold);
-    for (auto& i : gainSmoothed)
+    for (auto& i: gainSmoothed)
         i.setTargetValue(gain);
-    for (auto& i : driveSmoothed)
+    for (auto& i: driveSmoothed)
         i.setTargetValue(drive);
-    for (auto& i : kneeSmoothed)
+    for (auto& i: kneeSmoothed)
         i.setTargetValue(knee);
-    for (auto& i : holdSmoothed)
+    for (auto& i: holdSmoothed)
         i.setTargetValue(hold);
-    for (auto& i : releaseSmoothed)
+    for (auto& i: releaseSmoothed)
         i.setTargetValue(release);
 
     juce::dsp::AudioBlock<T> block(bufferIn);
     juce::dsp::AudioBlock<T> oversampledBlock;
 
     if (isOversampled)
-        oversampledBlock = oversampling.get()->processSamplesUp(block);
+        oversampledBlock = oversampling->processSamplesUp(block);
     else
         oversampledBlock = block;
 
@@ -273,8 +277,8 @@ void RipuLimiterAudioProcessor::processBlockInternal(juce::AudioBuffer<T>& buffe
 
     if (isOversampled)
     {
-        oversampling.get()->processSamplesDown(block);
-        setLatencySamples(limiters[0].latencySamples() + oversampling.get()->getLatencyInSamples());
+        oversampling->processSamplesDown(block);
+        setLatencySamples((int)(limiters[0].latencySamples() + oversampling->getLatencyInSamples()));
     }
     else
     {
@@ -323,9 +327,9 @@ void RipuLimiterAudioProcessor::processBlockInternal(juce::AudioBuffer<T>& buffe
     }
 }
 
-template <typename T>
+template<typename T>
 void RipuLimiterAudioProcessor::processBlockBypassedInternal(
-    juce::AudioBuffer<T>& buffer, juce::MidiBuffer& midiMessages
+        juce::AudioBuffer<T>& buffer, [[maybe_unused]] juce::MidiBuffer& midiMessages
 )
 {
     for (int channel = 0; channel < getTotalNumInputChannels(); ++channel)
@@ -333,7 +337,7 @@ void RipuLimiterAudioProcessor::processBlockBypassedInternal(
         auto* channelData = buffer.getWritePointer(channel);
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
         {
-            delayLine.pushSample(static_cast<double>(channelData[sample]), channel);
+            delayLine.pushSample(channel, static_cast<double>(channelData[sample]));
             channelData[sample] = static_cast<T>(delayLine.popSample(channel));
         }
     }
@@ -362,7 +366,7 @@ void RipuLimiterAudioProcessor::setStateInformation(const void* data, int sizeIn
 {
     std::unique_ptr<juce::XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
 
-    if (xmlState.get() != nullptr)
+    if (xmlState != nullptr)
         if (xmlState->hasTagName(apvts.state.getType()))
             apvts.replaceState(juce::ValueTree::fromXml(*xmlState));
 }

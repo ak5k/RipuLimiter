@@ -7,18 +7,18 @@
 
 struct ExponentialRelease
 {
-    double releaseSlew;
+    double releaseSlew{};
     double output = 1;
     int releaseSamples = 0;
 
     ExponentialRelease() = default;
 
-    ExponentialRelease(double releaseSamples)
+    explicit ExponentialRelease(int newReleaseSamples)
     {
-        // The exact value is `1 - exp(-1/releaseSamples)`
+        // The exact value is `1 - exp(-1/newReleaseSamples)`
         // but this is a decent approximation
-        // releaseSlew = (1 / (releaseSamples + 1));
-        setReleaseSlew(releaseSamples);
+        // releaseSlew = (1 / (newReleaseSamples + 1));
+        setReleaseSlew(newReleaseSamples);
     }
 
     void setReleaseSlew(int newReleaseSamples)
@@ -50,8 +50,8 @@ struct LimiterAttackHoldRelease
 
     double gainReduction = 1;
 
-    signalsmith::envelopes::PeakHold<double> peakHold{1};
-    signalsmith::envelopes::BoxStackFilter<double> smoother{1};
+    signalsmith::envelopes::PeakHold<double> peakHold{ 1 };
+    signalsmith::envelopes::BoxStackFilter<double> smoother{ 1 };
     // We don't need fractional delays, so this could be nearest-sample
     // signalsmith::delay::Delay<double> delay;
 
@@ -75,16 +75,16 @@ struct LimiterAttackHoldRelease
         attackSamples = (int)(attackMs * 0.001 * sampleRate);
 
         int holdSamples = (int)(holdMs * 0.001 * sampleRate);
-        double releaseSamples = releaseMs * 0.001 * sampleRate;
+        int releaseSamples = (int)(releaseMs * 0.001 * sampleRate);
         // release = ExponentialRelease(releaseSamples);
-        for (auto& release : releases)
+        for (auto& release: releases)
             release = ExponentialRelease(releaseSamples);
 
         peakHold.resize(attackSamples + holdSamples);
         smoother.resize(attackSamples, 3);
         smoother.reset(1);
 
-        delayLine.prepare({sampleRate, (uint32_t)attackSamples, 1});
+        delayLine.prepare({ sampleRate, (uint32_t)attackSamples, 1 });
         delayLine.setMaximumDelayInSamples(attackSamples);
         delayLine.setDelay(attackSamples);
     }
@@ -109,9 +109,9 @@ struct LimiterAttackHoldRelease
         releaseMs = newReleaseMs;
         double releaseSamples = releaseMs * 0.001 * sampleRate;
         // release = ExponentialRelease(releaseSamples);
-        for (auto& release : releases)
+        for (auto& release: releases)
             if (release.releaseSamples != (int)releaseSamples)
-                release.setReleaseSlew(releaseSamples);
+                release.setReleaseSlew((int)releaseSamples);
     }
 
     void setCascade(bool val)
@@ -139,7 +139,7 @@ struct LimiterAttackHoldRelease
 
     double sample(double v)
     {
-        double delayedV = 0;
+        double delayedV;
 
         // delayedV = delay.read(attackSamples - 1);
         // delay.write(v);

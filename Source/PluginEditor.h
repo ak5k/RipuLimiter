@@ -7,15 +7,17 @@
 
 class RipuLimiterAudioProcessorEditor : public juce::AudioProcessorEditor
 {
-  public:
-    RipuLimiterAudioProcessorEditor(RipuLimiterAudioProcessor&);
+public:
+    explicit RipuLimiterAudioProcessorEditor(RipuLimiterAudioProcessor&);
+
     ~RipuLimiterAudioProcessorEditor() override;
 
     //==============================================================================
     void paint(juce::Graphics&) override;
+
     void resized() override;
 
-  private:
+private:
     RipuLimiterAudioProcessor& audioProcessor;
     UI ui;
 
