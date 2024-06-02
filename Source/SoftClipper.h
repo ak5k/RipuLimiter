@@ -31,6 +31,7 @@ T SoftClipper(T x, T drive, T knee)
     // x /= drive;
     // return x;
     constexpr T MAGIC_NUMBER = 2.081368981005608;
+    // constexpr T MAGIC_NUMBER = 1;
 
     auto slider1 = -drive;
     auto slider2 = -drive;

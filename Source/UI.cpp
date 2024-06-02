@@ -338,6 +338,12 @@ void UI::buttonClicked(juce::Button* buttonThatWasClicked)
     {
         //[UserButtonCode_deessButton] -- add your button handler code here..
         linkButton->setToggleState(deessButton->getToggleState(), juce::NotificationType::sendNotification);
+        if (deessButton->getToggleState())
+        {
+            holdSlider->setValue(1, juce::NotificationType::sendNotificationAsync);
+            releaseSlider->setValue(5, juce::NotificationType::sendNotificationAsync);
+        }
+
         //[/UserButtonCode_deessButton]
     }
 
