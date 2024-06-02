@@ -131,11 +131,10 @@ execute_process(
     COMMAND ${GIT_EXECUTABLE} checkout ${JUCE_TAG}
     WORKING_DIRECTORY ${EXTERNAL_DIR}/JUCE
 )
-file(CREATE_LINK ${EXTERNAL_DIR}/JUCE ${CMAKE_CURRENT_SOURCE_DIR}/JUCE SYMBOLIC)
 
 ################################################################################
 
-add_subdirectory(JUCE)
+add_subdirectory(external/JUCE)
 
 juce_add_plugin("${PROJECT_NAME}"
     FORMATS AU VST3                             # The formats to build. Valid formats: Standalone Unity VST3 AU AUv3 AAX VST LV2.

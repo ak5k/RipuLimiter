@@ -2,7 +2,6 @@
 
 #include "PluginEditor.h"
 #include "SoftClipper.h"
-#include <memory>
 
 //==============================================================================
 RipuLimiterAudioProcessor::RipuLimiterAudioProcessor()
