@@ -1,0 +1,6 @@
+[submodule "external/signalsmith/dsp"]
+	path = external/signalsmith/dsp
+	url = https://github.com/Signalsmith-Audio/dsp
+[submodule "external/JUCE"]
+	path = external/JUCE
+	url = https://github.com/juce-framework/JUCE.git
