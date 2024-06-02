@@ -1,4 +1,3 @@
-#pragma clang diagnostic push
 /*
   ==============================================================================
 
@@ -28,7 +27,7 @@
 
 //==============================================================================
 UI::UI(RipuLimiterAudioProcessor& p)
-        : audioProcessor(p)
+    : audioProcessor(p)
 {
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
@@ -114,36 +113,44 @@ UI::UI(RipuLimiterAudioProcessor& p)
 
     releaseSlider->setBounds(336, 328, 94, 56);
 
+    deessButton.reset(new juce::ToggleButton("deess Button"));
+    addAndMakeVisible(deessButton.get());
+    deessButton->setButtonText(TRANS("deEsser"));
+    deessButton->addListener(this);
+
+    deessButton->setBounds(368, 304, 79, 24);
+
     //[UserPreSize]
     threshAttachment.reset(
-            new juce::AudioProcessorValueTreeState::SliderAttachment(audioProcessor.getAPVTS(), "thresh", *threshSilder)
+        new juce::AudioProcessorValueTreeState::SliderAttachment(audioProcessor.getAPVTS(), "thresh", *threshSilder)
     );
     gainAttachment.reset(
-            new juce::AudioProcessorValueTreeState::SliderAttachment(audioProcessor.getAPVTS(), "gain", *gainSlider)
+        new juce::AudioProcessorValueTreeState::SliderAttachment(audioProcessor.getAPVTS(), "gain", *gainSlider)
     );
     driveAttachment.reset(
-            new juce::AudioProcessorValueTreeState::SliderAttachment(audioProcessor.getAPVTS(), "drive", *driveSlider)
+        new juce::AudioProcessorValueTreeState::SliderAttachment(audioProcessor.getAPVTS(), "drive", *driveSlider)
     );
     kneeAttachment.reset(
-            new juce::AudioProcessorValueTreeState::SliderAttachment(audioProcessor.getAPVTS(), "knee", *kneeSlider)
+        new juce::AudioProcessorValueTreeState::SliderAttachment(audioProcessor.getAPVTS(), "knee", *kneeSlider)
     );
     holdAttachment.reset(
-            new juce::AudioProcessorValueTreeState::SliderAttachment(audioProcessor.getAPVTS(), "hold", *holdSlider)
+        new juce::AudioProcessorValueTreeState::SliderAttachment(audioProcessor.getAPVTS(), "hold", *holdSlider)
     );
     releaseAttachment.reset(
-            new juce::AudioProcessorValueTreeState::SliderAttachment(audioProcessor.getAPVTS(), "release",
-                    *releaseSlider)
+        new juce::AudioProcessorValueTreeState::SliderAttachment(audioProcessor.getAPVTS(), "release", *releaseSlider)
     );
 
     linkAttachment.reset(
-            new juce::AudioProcessorValueTreeState::ButtonAttachment(audioProcessor.getAPVTS(), "link", *linkButton)
+        new juce::AudioProcessorValueTreeState::ButtonAttachment(audioProcessor.getAPVTS(), "link", *linkButton)
     );
     oversampleAttachment.reset(new juce::AudioProcessorValueTreeState::ButtonAttachment(
-            audioProcessor.getAPVTS(), "oversample", *oversampleButton
+        audioProcessor.getAPVTS(), "oversample", *oversampleButton
     ));
     cascadeAttachment.reset(
-            new juce::AudioProcessorValueTreeState::ButtonAttachment(audioProcessor.getAPVTS(), "cascade",
-                    *cascadeButton)
+        new juce::AudioProcessorValueTreeState::ButtonAttachment(audioProcessor.getAPVTS(), "cascade", *cascadeButton)
+    );
+    deEsserAttachment.reset(
+        new juce::AudioProcessorValueTreeState::ButtonAttachment(audioProcessor.getAPVTS(), "deEsser", *deessButton)
     );
 
     //[/UserPreSize]
@@ -168,6 +175,7 @@ UI::~UI()
     linkAttachment = nullptr;
     oversampleAttachment = nullptr;
     cascadeAttachment = nullptr;
+    deEsserAttachment = nullptr;
     //[/Destructor_pre]
 
     threshSilder = nullptr;
@@ -180,6 +188,7 @@ UI::~UI()
     cascadeButton = nullptr;
     holdSlider = nullptr;
     releaseSlider = nullptr;
+    deessButton = nullptr;
 
     //[Destructor]. You can add your own custom destruction code here..
     //[/Destructor]
@@ -325,6 +334,12 @@ void UI::buttonClicked(juce::Button* buttonThatWasClicked)
         //[UserButtonCode_cascadeButton] -- add your button handler code here..
         //[/UserButtonCode_cascadeButton]
     }
+    else if (buttonThatWasClicked == deessButton.get())
+    {
+        //[UserButtonCode_deessButton] -- add your button handler code here..
+        linkButton->setToggleState(deessButton->getToggleState(), juce::NotificationType::sendNotification);
+        //[/UserButtonCode_deessButton]
+    }
 
     //[UserbuttonClicked_Post]
     //[/UserbuttonClicked_Post]
@@ -404,6 +419,9 @@ BEGIN_JUCER_METADATA
           max="300.0" int="1.0" style="RotaryHorizontalVerticalDrag" textBoxPos="TextBoxRight"
           textBoxEditable="1" textBoxWidth="40" textBoxHeight="20" skewFactor="1.0"
           needsCallback="1"/>
+  <TOGGLEBUTTON name="deess Button" id="415ae62478983f0a" memberName="deessButton"
+                virtualName="" explicitFocusOrder="0" pos="368 304 79 24" buttonText="deEsser"
+                connectedEdges="0" needsCallback="1" radioGroupId="0" state="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
@@ -412,5 +430,3 @@ END_JUCER_METADATA
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
-
-#pragma clang diagnostic pop

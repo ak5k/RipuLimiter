@@ -39,23 +39,25 @@ struct ExponentialRelease
 struct LimiterAttackHoldRelease
 {
     std::array<ExponentialRelease, 8> releases; // array of 8 ExponentialRelease objects
+    bool isDeEsser = false;
     bool cascade = true;
 
     double limit = 1;
     double attackMs = 4 / 3.0;
-    double holdMs = 20;
-    double releaseMs = 300;
+    double holdMs = 1;
+    double releaseMs = 5;
 
     double sampleRate = 44100;
 
     double gainReduction = 1;
 
-    signalsmith::envelopes::PeakHold<double> peakHold{ 1 };
-    signalsmith::envelopes::BoxStackFilter<double> smoother{ 1 };
+    signalsmith::envelopes::PeakHold<double> peakHold{1};
+    signalsmith::envelopes::BoxStackFilter<double> smoother{1};
     // We don't need fractional delays, so this could be nearest-sample
     // signalsmith::delay::Delay<double> delay;
 
     juce::dsp::DelayLine<double, juce::dsp::DelayLineInterpolationTypes::Linear> delayLine;
+    std::array<juce::dsp::IIR::Filter<double>, 4> highPassFilter;
 
     // ExponentialRelease release; // see the previous example code
 
@@ -77,16 +79,24 @@ struct LimiterAttackHoldRelease
         int holdSamples = (int)(holdMs * 0.001 * sampleRate);
         int releaseSamples = (int)(releaseMs * 0.001 * sampleRate);
         // release = ExponentialRelease(releaseSamples);
-        for (auto& release: releases)
+        for (auto& release : releases)
             release = ExponentialRelease(releaseSamples);
 
         peakHold.resize(attackSamples + holdSamples);
         smoother.resize(attackSamples, 3);
         smoother.reset(1);
 
-        delayLine.prepare({ sampleRate, (uint32_t)attackSamples, 1 });
+        delayLine.prepare({sampleRate, (uint32_t)attackSamples, 1});
         delayLine.setMaximumDelayInSamples(attackSamples);
         delayLine.setDelay(attackSamples);
+
+        double cutoffFrequency = 5000.0; // Set your desired cutoff frequency here
+        for (auto& filter : highPassFilter)
+        {
+            filter.prepare({sampleRate, 1, 1});
+            filter.coefficients = juce::dsp::IIR::Coefficients<double>::makeHighPass(sampleRate, cutoffFrequency);
+            filter.reset();
+        }
     }
 
     int latencySamples() const
@@ -109,7 +119,7 @@ struct LimiterAttackHoldRelease
         releaseMs = newReleaseMs;
         double releaseSamples = releaseMs * 0.001 * sampleRate;
         // release = ExponentialRelease(releaseSamples);
-        for (auto& release: releases)
+        for (auto& release : releases)
             if (release.releaseSamples != (int)releaseSamples)
                 release.setReleaseSlew((int)releaseSamples);
     }
@@ -129,8 +139,9 @@ struct LimiterAttackHoldRelease
 
         int n = cascade ? (int)releases.size() : 1;
         // for (auto& release : releases)
-        for (int i = 0; i < n; ++i)
-            movingMin = releases[i].step(movingMin);
+        for (auto& i : releases)
+            if (n-- > 0)
+                movingMin = i.step(movingMin);
 
         double releaseEnvelope = movingMin;
         // return releaseEnvelope;
@@ -139,18 +150,30 @@ struct LimiterAttackHoldRelease
 
     double sample(double v)
     {
-        double delayedV;
+        double delayedV = 0;
 
         // delayedV = delay.read(attackSamples - 1);
         // delay.write(v);
 
-        delayLine.pushSample(0, v);
-        delayedV = delayLine.popSample(0);
+        double vFiltered = v;
+        for (auto& filter : highPassFilter)
+            vFiltered = filter.processSample(vFiltered);
 
-        double g = gain(v);
+        delayLine.pushSample(0, v);
+        // delayLine.pushSample(1, vFiltered);
+        delayedV = delayLine.popSample(0);
+        // auto delayedVFiltered = delayLine.popSample(1);
+
+        auto input = isDeEsser ? vFiltered : v;
+        double g = gain(input);
 
         gainReduction = g;
 
         return delayedV * g;
+    }
+
+    void setDeEsser(bool val)
+    {
+        isDeEsser = val;
     }
 };

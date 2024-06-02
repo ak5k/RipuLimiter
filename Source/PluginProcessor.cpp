@@ -36,7 +36,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout RipuLimiterAudioProcessor::c
     {
         auto attributes = AudioParameterFloatAttributes().withLabel(" dB");
         params.push_back(std::make_unique<AudioParameterFloat>(
-            "gain", "Gain", juce::NormalisableRange<float>(-24.0f, 0.0f, 0.1f), -0.1f, attributes
+            "gain", "Gain", juce::NormalisableRange<float>(-24.0f, 0.0f, 0.1f), -1.0f, attributes
         ));
     }
 
@@ -64,13 +64,14 @@ juce::AudioProcessorValueTreeState::ParameterLayout RipuLimiterAudioProcessor::c
     {
         auto attributes = AudioParameterFloatAttributes().withLabel(" ms");
         params.push_back(std::make_unique<AudioParameterFloat>(
-            "release", "Release", juce::NormalisableRange<float>(5.0f, 300.0f, 0.1f, 0.38f), 40.0f, attributes
+            "release", "Release", juce::NormalisableRange<float>(5.0f, 300.0f, 0.1f, 0.38f), 5.0f, attributes
         ));
     }
 
     params.push_back(std::make_unique<juce::AudioParameterBool>("link", "Link", false));
     params.push_back(std::make_unique<juce::AudioParameterBool>("oversample", "Oversample", false));
-    params.push_back(std::make_unique<juce::AudioParameterBool>("cascade", "Cascade", false));
+    params.push_back(std::make_unique<juce::AudioParameterBool>("cascade", "Cascade", true));
+    params.push_back(std::make_unique<juce::AudioParameterBool>("deEsser", "De-Esser", false));
 
     return {params.begin(), params.end()};
 }
@@ -240,8 +241,12 @@ void RipuLimiterAudioProcessor::processBlockInternal(
     bool isLinked = (bool)apvts.getRawParameterValue("link")->load();
     bool isOversampled = (bool)apvts.getRawParameterValue("oversample")->load();
     bool cascade = (bool)apvts.getRawParameterValue("cascade")->load();
+    bool deEss = (bool)apvts.getRawParameterValue("deEsser")->load();
     for (auto& limiter : limiters)
+    {
         limiter.setCascade(cascade);
+        limiter.setDeEsser(deEss);
+    }
 
     for (auto& i : thresholdSmoothed)
         i.setTargetValue(threshold);
@@ -259,23 +264,28 @@ void RipuLimiterAudioProcessor::processBlockInternal(
     juce::dsp::AudioBlock<T> block(bufferIn);
     juce::dsp::AudioBlock<T> oversampledBlock;
 
-    if (isOversampled)
+    bool doSaturation = !approximatelyEqual(drive, 1.0f);
+
+    bool doOverSample = isOversampled && doSaturation;
+
+    if (doOverSample)
         oversampledBlock = oversampling->processSamplesUp(block);
     else
         oversampledBlock = block;
 
-    for (auto channel = 0; channel < oversampledBlock.getNumChannels(); channel++)
-    {
-        auto* channelData = oversampledBlock.getChannelPointer(channel);
-        for (auto sample = 0; sample < oversampledBlock.getNumSamples(); sample++)
+    if (doSaturation)
+        for (auto channel = 0; channel < oversampledBlock.getNumChannels(); channel++)
         {
-            drive = driveSmoothed[channel].getNextValue();
-            knee = kneeSmoothed[channel].getNextValue();
-            channelData[sample] = SoftClipper(channelData[sample], (T)drive, (T)knee);
+            auto* channelData = oversampledBlock.getChannelPointer(channel);
+            for (auto sample = 0; sample < oversampledBlock.getNumSamples(); sample++)
+            {
+                drive = driveSmoothed[channel].getNextValue();
+                knee = kneeSmoothed[channel].getNextValue();
+                channelData[sample] = SoftClipper(channelData[sample], (T)drive, (T)knee);
+            }
         }
-    }
 
-    if (isOversampled)
+    if (doOverSample)
     {
         oversampling->processSamplesDown(block);
         setLatencySamples((int)(limiters[0].latencySamples() + oversampling->getLatencyInSamples()));
