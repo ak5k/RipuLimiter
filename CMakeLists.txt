@@ -5,7 +5,10 @@ project(RipuLimiter VERSION 1.0.0)
 
 set(CMAKE_CXX_STANDARD 20)
 add_definitions(-D_SILENCE_ALL_CXX23_DEPRECATION_WARNINGS)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+# IDEs:  Create a folder in the IDE with the JUCE Module code.
+option(JUCE_ENABLE_MODULE_SOURCE_GROUPS "Show all module sources in IDE projects" ON)
 ################################################################################
 
 set(JUCE_TAG "7.0.12")
@@ -220,9 +223,15 @@ else ()
     set(MY_FLAGS
         -Wall
         -Wextra
+        -Wno-float-conversion
+        -Wno-implicit-int-float-conversion
+        -Wno-shadow 
         -Wno-sign-compare
         -Wno-sign-conversion
+        -Wno-shorten-64-to-32
         -Wno-unused-parameter
+        -Wno-unused-private-field
+        -Wno-unused-variable
     )
     string(JOIN " " MY_FLAGS_STR ${MY_FLAGS})
     set_source_files_properties(${SOURCES}
