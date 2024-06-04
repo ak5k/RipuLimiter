@@ -217,8 +217,14 @@ if (MSVC)
 else ()
     string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" LOWERCASE_PROCESSOR)
     if (NOT APPLE AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-        target_compile_options(${PROJECT_NAME} PUBLIC -march=x86-64-v3)
-    endif ()
+    if(NOT LOWERCASE_PROCESSOR MATCHES "^(arm.*|aarch64.*)$")
+        message("clang and not apple and not arm/aarch")
+        target_compile_definitions(${PROJECT_NAME}
+                PUBLIC
+                -march=x86-64-v4
+        )
+    endif()
+    endif()
     message("non-msvc compiler interface")
     set(MY_FLAGS
         -Wall
