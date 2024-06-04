@@ -217,12 +217,10 @@ if (MSVC)
 else ()
     string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" LOWERCASE_PROCESSOR)
     if (NOT APPLE AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    if(NOT LOWERCASE_PROCESSOR MATCHES "^(arm.*|aarch64.*)$")
+    if(NOT $ENV{ARCH} MATCHES "^(arm.*|aarch64.*)$")
         message("${LOWERCASE_PROCESSOR}")
         message("clang and not apple and not arm/aarch")
-        target_compile_definitions(${PROJECT_NAME}
-                PUBLIC
-                -march=x86-64-v3
+        target_compile_definitions(${PROJECT_NAME} PRIVATE -march=x86-64-v3
         )
     endif()
     endif()
