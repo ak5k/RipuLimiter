@@ -220,7 +220,7 @@ else ()
     if(NOT $ENV{ARCH} MATCHES "^(arm.*|aarch64.*)$")
         message("${LOWERCASE_PROCESSOR}")
         message("clang and not apple and not arm/aarch")
-        target_compile_options(${PROJECT_NAME} PRIVATE -march=x86-64-v4
+        target_compile_options(${PROJECT_NAME} PRIVATE -march=x86-64-v3
         )
     endif()
     endif()
