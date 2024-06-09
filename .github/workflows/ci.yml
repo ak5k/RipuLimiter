@@ -248,8 +248,8 @@ jobs:
       if: runner.os == 'Windows'
       shell: bash
       run: |
-        sudo chown -R $(whoami) .
-        sudo chmod -R 777 .
+        chown -R $(whoami) .
+        chmod -R 777 .
 
     - name: build windows
       if: runner.os == 'Windows'
