@@ -22,103 +22,105 @@
 
 #include "UI.h"
 
+
 //[MiscUserDefs] You can add your own user definitions and misc code here...
 //[/MiscUserDefs]
 
 //==============================================================================
-UI::UI(RipuLimiterAudioProcessor& p)
+UI::UI (RipuLimiterAudioProcessor& p)
     : audioProcessor(p)
 {
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
 
-    threshSilder.reset(new juce::Slider("thresh slider"));
-    addAndMakeVisible(threshSilder.get());
-    threshSilder->setRange(-24, 0, 0.1);
-    threshSilder->setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
-    threshSilder->setTextBoxStyle(juce::Slider::TextBoxRight, false, 80, 20);
-    threshSilder->addListener(this);
+    threshSilder.reset (new juce::Slider ("thresh slider"));
+    addAndMakeVisible (threshSilder.get());
+    threshSilder->setRange (-24, 0, 0.1);
+    threshSilder->setSliderStyle (juce::Slider::RotaryHorizontalVerticalDrag);
+    threshSilder->setTextBoxStyle (juce::Slider::TextBoxRight, false, 80, 20);
+    threshSilder->addListener (this);
 
-    threshSilder->setBounds(32, 120, 191, 104);
+    threshSilder->setBounds (32, 120, 191, 104);
 
-    gainSlider.reset(new juce::Slider("gain Slider"));
-    addAndMakeVisible(gainSlider.get());
-    gainSlider->setRange(-24, 0, 0.1);
-    gainSlider->setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
-    gainSlider->setTextBoxStyle(juce::Slider::TextBoxRight, false, 80, 20);
-    gainSlider->addListener(this);
+    gainSlider.reset (new juce::Slider ("gain Slider"));
+    addAndMakeVisible (gainSlider.get());
+    gainSlider->setRange (-24, 0, 0.1);
+    gainSlider->setSliderStyle (juce::Slider::RotaryHorizontalVerticalDrag);
+    gainSlider->setTextBoxStyle (juce::Slider::TextBoxRight, false, 80, 20);
+    gainSlider->addListener (this);
 
-    gainSlider->setBounds(24, 272, 191, 104);
+    gainSlider->setBounds (24, 272, 191, 104);
 
-    linkButton.reset(new juce::ToggleButton("link button"));
-    addAndMakeVisible(linkButton.get());
-    linkButton->setButtonText(TRANS("new button"));
-    linkButton->addListener(this);
+    linkButton.reset (new juce::ToggleButton ("link button"));
+    addAndMakeVisible (linkButton.get());
+    linkButton->setButtonText (TRANS ("new button"));
+    linkButton->addListener (this);
 
-    linkButton->setBounds(72, 232, 102, 24);
+    linkButton->setBounds (72, 232, 102, 24);
 
-    levelMeter.reset(new LevelMeter());
-    addAndMakeVisible(levelMeter.get());
-    levelMeter->setName("level meter");
+    levelMeter.reset (new LevelMeter());
+    addAndMakeVisible (levelMeter.get());
+    levelMeter->setName ("level meter");
 
-    levelMeter->setBounds(472, 136, 54, 216);
+    levelMeter->setBounds (472, 136, 54, 216);
 
-    driveSlider.reset(new juce::Slider("drive Slider"));
-    addAndMakeVisible(driveSlider.get());
-    driveSlider->setRange(0, 24, 0.1);
-    driveSlider->setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
-    driveSlider->setTextBoxStyle(juce::Slider::TextBoxRight, false, 80, 20);
-    driveSlider->addListener(this);
+    driveSlider.reset (new juce::Slider ("drive Slider"));
+    addAndMakeVisible (driveSlider.get());
+    driveSlider->setRange (0, 24, 0.1);
+    driveSlider->setSliderStyle (juce::Slider::RotaryHorizontalVerticalDrag);
+    driveSlider->setTextBoxStyle (juce::Slider::TextBoxRight, false, 80, 20);
+    driveSlider->addListener (this);
 
-    driveSlider->setBounds(256, 168, 191, 104);
+    driveSlider->setBounds (256, 168, 191, 104);
 
-    oversampleButton.reset(new juce::ToggleButton("oversample button"));
-    addAndMakeVisible(oversampleButton.get());
-    oversampleButton->setButtonText(TRANS("4x"));
-    oversampleButton->addListener(this);
+    oversampleButton.reset (new juce::ToggleButton ("oversample button"));
+    addAndMakeVisible (oversampleButton.get());
+    oversampleButton->setButtonText (TRANS ("4x"));
+    oversampleButton->addListener (this);
 
-    oversampleButton->setBounds(376, 240, 54, 24);
+    oversampleButton->setBounds (376, 240, 54, 24);
 
-    kneeSlider.reset(new juce::Slider("knee slider"));
-    addAndMakeVisible(kneeSlider.get());
-    kneeSlider->setRange(0, 6, 0.1);
-    kneeSlider->setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
-    kneeSlider->setTextBoxStyle(juce::Slider::TextBoxRight, false, 40, 20);
-    kneeSlider->addListener(this);
+    kneeSlider.reset (new juce::Slider ("knee slider"));
+    addAndMakeVisible (kneeSlider.get());
+    kneeSlider->setRange (0, 6, 0.1);
+    kneeSlider->setSliderStyle (juce::Slider::RotaryHorizontalVerticalDrag);
+    kneeSlider->setTextBoxStyle (juce::Slider::TextBoxRight, false, 40, 20);
+    kneeSlider->addListener (this);
 
-    kneeSlider->setBounds(352, 152, 94, 56);
+    kneeSlider->setBounds (352, 152, 94, 56);
 
-    cascadeButton.reset(new juce::ToggleButton("cascade Button"));
-    addAndMakeVisible(cascadeButton.get());
-    cascadeButton->setButtonText(juce::CharPointer_UTF8("P\xc3\xb6k\xc3\xa4Leveller"));
-    cascadeButton->addListener(this);
+    cascadeButton.reset (new juce::ToggleButton ("cascade Button"));
+    addAndMakeVisible (cascadeButton.get());
+    cascadeButton->setButtonText (juce::CharPointer_UTF8 ("P\xc3\xb6k\xc3\xa4Leveller"));
+    cascadeButton->addListener (this);
 
-    cascadeButton->setBounds(248, 304, 150, 24);
+    cascadeButton->setBounds (248, 304, 150, 24);
 
-    holdSlider.reset(new juce::Slider("hold slider"));
-    addAndMakeVisible(holdSlider.get());
-    holdSlider->setRange(1, 20, 0.1);
-    holdSlider->setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
-    holdSlider->setTextBoxStyle(juce::Slider::TextBoxRight, false, 40, 20);
-    holdSlider->addListener(this);
+    holdSlider.reset (new juce::Slider ("hold slider"));
+    addAndMakeVisible (holdSlider.get());
+    holdSlider->setRange (1, 20, 0.1);
+    holdSlider->setSliderStyle (juce::Slider::RotaryHorizontalVerticalDrag);
+    holdSlider->setTextBoxStyle (juce::Slider::TextBoxRight, false, 40, 20);
+    holdSlider->addListener (this);
 
-    holdSlider->setBounds(240, 328, 94, 56);
+    holdSlider->setBounds (240, 328, 94, 56);
 
-    releaseSlider.reset(new juce::Slider("release Silder"));
-    addAndMakeVisible(releaseSlider.get());
-    releaseSlider->setRange(5, 300, 1);
-    releaseSlider->setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
-    releaseSlider->setTextBoxStyle(juce::Slider::TextBoxRight, false, 40, 20);
-    releaseSlider->addListener(this);
+    releaseSlider.reset (new juce::Slider ("release Silder"));
+    addAndMakeVisible (releaseSlider.get());
+    releaseSlider->setRange (5, 300, 1);
+    releaseSlider->setSliderStyle (juce::Slider::RotaryHorizontalVerticalDrag);
+    releaseSlider->setTextBoxStyle (juce::Slider::TextBoxRight, false, 40, 20);
+    releaseSlider->addListener (this);
 
-    releaseSlider->setBounds(336, 328, 94, 56);
+    releaseSlider->setBounds (336, 328, 94, 56);
 
-    deessButton.reset(new juce::ToggleButton("deess Button"));
-    addAndMakeVisible(deessButton.get());
-    deessButton->setButtonText(TRANS("deEsser"));
-    deessButton->addListener(this);
+    deessButton.reset (new juce::ToggleButton ("deess Button"));
+    addAndMakeVisible (deessButton.get());
+    deessButton->setButtonText (TRANS ("deEsser"));
+    deessButton->addListener (this);
 
-    deessButton->setBounds(368, 304, 79, 24);
+    deessButton->setBounds (368, 304, 79, 24);
+
 
     //[UserPreSize]
     threshAttachment.reset(
@@ -155,7 +157,8 @@ UI::UI(RipuLimiterAudioProcessor& p)
 
     //[/UserPreSize]
 
-    setSize(600, 400);
+    setSize (600, 400);
+
 
     //[Constructor] You can add your own custom stuff here..
     startTimerHz(60);
@@ -190,69 +193,75 @@ UI::~UI()
     releaseSlider = nullptr;
     deessButton = nullptr;
 
+
     //[Destructor]. You can add your own custom destruction code here..
     //[/Destructor]
 }
 
 //==============================================================================
-void UI::paint(juce::Graphics& g)
+void UI::paint (juce::Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.fillAll(juce::Colour(0xff323e44));
+    g.fillAll (juce::Colour (0xff323e44));
 
     {
         int x = 114, y = 3, width = 370, height = 128;
-        juce::String text(TRANS("RipuLimiter"));
-        juce::Colour fillColour = juce::Colour(0xffb8b8b8);
+        juce::String text (TRANS ("RipuLimiter"));
+        juce::Colour fillColour = juce::Colour (0xffb8b8b8);
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
-        g.setColour(fillColour);
-        g.setFont(juce::Font("Comic Sans MS", 94.60f, juce::Font::plain).withTypefaceStyle("Regular"));
-        g.drawText(text, x, y, width, height, juce::Justification::centred, true);
+        g.setColour (fillColour);
+        g.setFont (juce::Font ("Comic Sans MS", 94.60f, juce::Font::plain).withTypefaceStyle ("Regular"));
+        g.drawText (text, x, y, width, height,
+                    juce::Justification::centred, true);
     }
 
     {
         int x = 250, y = 147, width = 206, height = 135;
-        juce::Colour strokeColour = juce::Colour(0xffb8b8b8);
+        juce::Colour strokeColour = juce::Colour (0xffb8b8b8);
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
-        g.setColour(strokeColour);
-        g.drawRect(x, y, width, height, 5);
+        g.setColour (strokeColour);
+        g.drawRect (x, y, width, height, 5);
+
     }
 
     {
         int x = 258, y = 115, width = 200, height = 30;
-        juce::String text(TRANS("Paskialisaattori"));
-        juce::Colour fillColour = juce::Colour(0xffb8b8b8);
+        juce::String text (TRANS ("Paskialisaattori"));
+        juce::Colour fillColour = juce::Colour (0xffb8b8b8);
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
-        g.setColour(fillColour);
-        g.setFont(juce::Font("Times New Roman", 25.70f, juce::Font::plain).withTypefaceStyle("Bold Italic"));
-        g.drawText(text, x, y, width, height, juce::Justification::centred, true);
+        g.setColour (fillColour);
+        g.setFont (juce::Font ("Times New Roman", 25.70f, juce::Font::plain).withTypefaceStyle ("Bold Italic"));
+        g.drawText (text, x, y, width, height,
+                    juce::Justification::centred, true);
     }
 
     {
         int x = 282, y = 371, width = 26, height = 30;
-        juce::String text(TRANS("hold"));
-        juce::Colour fillColour = juce::Colour(0xffb8b8b8);
+        juce::String text (TRANS ("hold"));
+        juce::Colour fillColour = juce::Colour (0xffb8b8b8);
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
-        g.setColour(fillColour);
-        g.setFont(juce::Font(15.00f, juce::Font::plain).withTypefaceStyle("Regular"));
-        g.drawText(text, x, y, width, height, juce::Justification::centred, true);
+        g.setColour (fillColour);
+        g.setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+        g.drawText (text, x, y, width, height,
+                    juce::Justification::centred, true);
     }
 
     {
         int x = 378, y = 371, width = 26, height = 30;
-        juce::String text(TRANS("rel"));
-        juce::Colour fillColour = juce::Colour(0xffb8b8b8);
+        juce::String text (TRANS ("rel"));
+        juce::Colour fillColour = juce::Colour (0xffb8b8b8);
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
-        g.setColour(fillColour);
-        g.setFont(juce::Font(15.00f, juce::Font::plain).withTypefaceStyle("Regular"));
-        g.drawText(text, x, y, width, height, juce::Justification::centred, true);
+        g.setColour (fillColour);
+        g.setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+        g.drawText (text, x, y, width, height,
+                    juce::Justification::centred, true);
     }
 
     //[UserPaint] Add your own custom painting code here..
@@ -268,7 +277,7 @@ void UI::resized()
     //[/UserResized]
 }
 
-void UI::sliderValueChanged(juce::Slider* sliderThatWasMoved)
+void UI::sliderValueChanged (juce::Slider* sliderThatWasMoved)
 {
     //[UsersliderValueChanged_Pre]
     //[/UsersliderValueChanged_Pre]
@@ -312,7 +321,7 @@ void UI::sliderValueChanged(juce::Slider* sliderThatWasMoved)
     //[/UsersliderValueChanged_Post]
 }
 
-void UI::buttonClicked(juce::Button* buttonThatWasClicked)
+void UI::buttonClicked (juce::Button* buttonThatWasClicked)
 {
     //[UserbuttonClicked_Pre]
     //[/UserbuttonClicked_Pre]
@@ -351,8 +360,11 @@ void UI::buttonClicked(juce::Button* buttonThatWasClicked)
     //[/UserbuttonClicked_Post]
 }
 
+
+
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 //[/MiscUserCode]
+
 
 //==============================================================================
 #if 0
@@ -434,5 +446,7 @@ END_JUCER_METADATA
 */
 #endif
 
+
 //[EndFile] You can add extra defines here...
 //[/EndFile]
+

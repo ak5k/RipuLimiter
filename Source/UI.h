@@ -27,6 +27,8 @@
 
 //[/Headers]
 
+
+
 //==============================================================================
 /**
                                                                     //[Comments]
@@ -35,15 +37,14 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class UI
-    : public juce::Component
-    , public juce::Timer
-    , public juce::Slider::Listener
-    , public juce::Button::Listener
+class UI  : public juce::Component,
+            public juce::Timer,
+            public juce::Slider::Listener,
+            public juce::Button::Listener
 {
-  public:
+public:
     //==============================================================================
-    UI(RipuLimiterAudioProcessor& p);
+    UI (RipuLimiterAudioProcessor& p);
     ~UI() override;
 
     //==============================================================================
@@ -56,12 +57,14 @@ class UI
 
     //[/UserMethods]
 
-    void paint(juce::Graphics& g) override;
+    void paint (juce::Graphics& g) override;
     void resized() override;
-    void sliderValueChanged(juce::Slider* sliderThatWasMoved) override;
-    void buttonClicked(juce::Button* buttonThatWasClicked) override;
+    void sliderValueChanged (juce::Slider* sliderThatWasMoved) override;
+    void buttonClicked (juce::Button* buttonThatWasClicked) override;
 
-  private:
+
+
+private:
     //[UserVariables]   -- You can add your own custom variables in this section.
     RipuLimiterAudioProcessor& audioProcessor;
 
@@ -91,9 +94,11 @@ class UI
     std::unique_ptr<juce::Slider> releaseSlider;
     std::unique_ptr<juce::ToggleButton> deessButton;
 
+
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(UI)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (UI)
 };
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
+
