@@ -48,7 +48,7 @@ jobs:
         - {
             name: 'windows x64',
             os: windows-2022,
-            cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++",
+            # cmake_config_flags: "-G Ninja",
             pluginval_link: "https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_Windows.zip",
             pluginval_path: "./pluginval.exe",
             pkg_mgr: "choco",
@@ -59,7 +59,7 @@ jobs:
         - {
             name: 'windows arm64',
             os: windows-2022,
-            cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++",
+            # cmake_config_flags: "-G Ninja",
             pkg_mgr: "choco",
             win_clang_prefix: "\\x64",
             arch: "arm64",
@@ -68,7 +68,7 @@ jobs:
         - {
             name: 'windows arm',
             os: windows-2022,
-            cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++",
+            # cmake_config_flags: "-G Ninja",
             pkg_mgr: "choco",
             arch: "arm",
             vcvarsbat: vcvarsamd64_arm.bat
@@ -76,7 +76,7 @@ jobs:
         - {
             name: 'windows x86',
             os: windows-2022,
-            cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++",
+            # cmake_config_flags: "-G Ninja",
             pkg_mgr: "choco",
             arch: "x86",
             vcvarsbat: vcvars32.bat
@@ -230,9 +230,9 @@ jobs:
       run: |
         call "%ProgramFiles%\Microsoft Visual Studio\${{env.VS_VERSION}}\Enterprise\VC\Auxiliary\Build\${{matrix.config.vcvarsbat}}"
         cmake -B build ${{matrix.config.cmake_config_flags}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ^
-        -DCMAKE_C_COMPILER="%ProgramFiles%\\Microsoft Visual Studio\\${{env.VS_VERSION}}\\Enterprise\\VC\\Tools\\Llvm${{matrix.config.win_clang_prefix}}\\bin\\clang.exe" ^
-        -DCMAKE_CXX_COMPILER="%ProgramFiles%\\Microsoft Visual Studio\\${{env.VS_VERSION}}\\Enterprise\\VC\\Tools\\Llvm${{matrix.config.win_clang_prefix}}\\bin\\clang.exe" 
-        cmake --build build ${{matrix.config.cmake_build_flags}} --config ${{env.BUILD_TYPE}}
+
+      # -DCMAKE_C_COMPILER="%ProgramFiles%\\Microsoft Visual Studio\\${{env.VS_VERSION}}\\Enterprise\\VC\\Tools\\Llvm${{matrix.config.win_clang_prefix}}\\bin\\clang.exe" ^
+      # -DCMAKE_CXX_COMPILER="%ProgramFiles%\\Microsoft Visual Studio\\${{env.VS_VERSION}}\\Enterprise\\VC\\Tools\\Llvm${{matrix.config.win_clang_prefix}}\\bin\\clang.exe" 
 
     - name: set permissions macos
       if: runner.os == 'macOS'
@@ -246,12 +246,12 @@ jobs:
       run: |
         cmake --build build ${{matrix.config.cmake_build_flags}} --config ${{env.BUILD_TYPE}}
 
-    # - name: build windows
-    #   if: runner.os == 'Windows'
-    #   shell: cmd    
-    #   run: |
-    #     call "%ProgramFiles%\Microsoft Visual Studio\${{env.VS_VERSION}}\Enterprise\VC\Auxiliary\Build\${{matrix.config.vcvarsbat}}"
-    #     cmake --build build ${{matrix.config.cmake_build_flags}} --config ${{env.BUILD_TYPE}}
+    - name: build windows
+      if: runner.os == 'Windows'
+      shell: cmd    
+      run: |
+        call "%ProgramFiles%\Microsoft Visual Studio\${{env.VS_VERSION}}\Enterprise\VC\Auxiliary\Build\${{matrix.config.vcvarsbat}}"
+        cmake --build build ${{matrix.config.cmake_build_flags}} --config ${{env.BUILD_TYPE}}
 
 
     # Note: I was unable to get AU validation with pluginval 1.0.x working on a GitHub Actions runner even when copying the plugin to `/Library/Audio/Plug-ins/Components`.
