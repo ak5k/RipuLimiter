@@ -220,18 +220,18 @@ jobs:
         ${{matrix.config.pkg_mgr}} install zip
 
     - name: configure cmake unix-like
-      if: runner.os != 'Windows'
+      # if: runner.os != 'Windows'
       run: |
         cmake -B build ${{matrix.config.cmake_config_flags}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
-    - name: configure cmake windows
-      if: runner.os == 'Windows'
-      shell: cmd    
-      run: |
-        call "%ProgramFiles%\Microsoft Visual Studio\${{env.VS_VERSION}}\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" ${{matrix.config.varsall_arch}}
-        cmake -B build ${{matrix.config.cmake_config_flags}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ^
-        -DCMAKE_C_COMPILER="%ProgramFiles%\\Microsoft Visual Studio\\${{env.VS_VERSION}}\\Enterprise\\VC\\Tools\\Llvm${{matrix.config.win_clang_prefix}}\\bin\\clang.exe" ^
-        -DCMAKE_CXX_COMPILER="%ProgramFiles%\\Microsoft Visual Studio\\${{env.VS_VERSION}}\\Enterprise\\VC\\Tools\\Llvm${{matrix.config.win_clang_prefix}}\\bin\\clang++.exe" 
+    # - name: configure cmake windows
+    #   if: runner.os == 'Windows'
+    #   shell: cmd    
+    #   run: |
+    #     call "%ProgramFiles%\Microsoft Visual Studio\${{env.VS_VERSION}}\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" ${{matrix.config.varsall_arch}}
+    #     cmake -B build ${{matrix.config.cmake_config_flags}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ^
+    #     -DCMAKE_C_COMPILER="%ProgramFiles%\\Microsoft Visual Studio\\${{env.VS_VERSION}}\\Enterprise\\VC\\Tools\\Llvm${{matrix.config.win_clang_prefix}}\\bin\\clang.exe" ^
+    #     -DCMAKE_CXX_COMPILER="%ProgramFiles%\\Microsoft Visual Studio\\${{env.VS_VERSION}}\\Enterprise\\VC\\Tools\\Llvm${{matrix.config.win_clang_prefix}}\\bin\\clang++.exe" 
 
     - name: set permissions macos
       if: runner.os == 'macOS'
@@ -240,7 +240,7 @@ jobs:
         sudo chmod -R 777 /Library/Audio/Plug-Ins/
 
     - name: build unix-like
-      if: runner.os != 'Windows'
+      # if: runner.os != 'Windows'
       run: |
         cmake --build build ${{matrix.config.cmake_build_flags}}
 
@@ -251,12 +251,12 @@ jobs:
         chown -R $(whoami) .
         chmod -R 777 .
 
-    - name: build windows
-      if: runner.os == 'Windows'
-      shell: cmd    
-      run: |
-        call "%ProgramFiles%\Microsoft Visual Studio\${{env.VS_VERSION}}\Enterprise\VC\Auxiliary\build\vcvarsall.bat" ${{matrix.config.arch}}
-        cmake --build build ${{matrix.config.cmake_build_flags}} --config ${{env.BUILD_TYPE}}
+    # - name: build windows
+    #   if: runner.os == 'Windows'
+    #   shell: cmd    
+    #   run: |
+    #     call "%ProgramFiles%\Microsoft Visual Studio\${{env.VS_VERSION}}\Enterprise\VC\Auxiliary\build\vcvarsall.bat" ${{matrix.config.arch}}
+    #     cmake --build build ${{matrix.config.cmake_build_flags}} --config ${{env.BUILD_TYPE}}
 
 
     # Note: I was unable to get AU validation with pluginval 1.0.x working on a GitHub Actions runner even when copying the plugin to `/Library/Audio/Plug-ins/Components`.
