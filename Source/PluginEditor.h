@@ -1,22 +1,27 @@
 #pragma once
 
-#include "PluginProcessor.h"
+#include <JuceHeader.h>
 
-//==============================================================================
-class AudioPluginAudioProcessorEditor final : public juce::AudioProcessorEditor
+#include "PluginProcessor.h"
+#include "UI.h"
+
+class RipuLimiterAudioProcessorEditor : public juce::AudioProcessorEditor
 {
 public:
-    explicit AudioPluginAudioProcessorEditor (AudioPluginAudioProcessor&);
-    ~AudioPluginAudioProcessorEditor() override;
+    explicit RipuLimiterAudioProcessorEditor(RipuLimiterAudioProcessor&);
+
+    ~RipuLimiterAudioProcessorEditor() override;
 
     //==============================================================================
-    void paint (juce::Graphics&) override;
+    void paint(juce::Graphics&) override;
+
     void resized() override;
 
 private:
-    // This reference is provided as a quick way for your editor to
-    // access the processor object that created it.
-    AudioPluginAudioProcessor& processorRef;
+    RipuLimiterAudioProcessor& audioProcessor;
+    UI ui;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessorEditor)
+    juce::OpenGLContext openGLContext;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(RipuLimiterAudioProcessorEditor)
 };
