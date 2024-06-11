@@ -362,7 +362,8 @@ bool RipuLimiterAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* RipuLimiterAudioProcessor::createEditor()
 {
-    return new RipuLimiterAudioProcessorEditor(*this);
+    // return new RipuLimiterAudioProcessorEditor(*this);
+    return new GenericAudioProcessorEditor(*this);
 }
 
 //==============================================================================
