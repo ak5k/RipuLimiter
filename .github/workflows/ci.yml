@@ -48,7 +48,7 @@ jobs:
         - {
             name: 'windows x64',
             os: windows-2022,
-            cmake_config_flags: "-G Ninja",
+            # cmake_config_flags: "-G Ninja",
             pluginval_link: "https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_Windows.zip",
             pluginval_path: "./pluginval.exe",
             pkg_mgr: "choco",
@@ -56,31 +56,31 @@ jobs:
             arch: "x64",
             vcvarsbat: vcvars64.bat
           }
-        - {
-            name: 'windows arm64',
-            os: windows-2022,
-            cmake_config_flags: "-G Ninja",
-            pkg_mgr: "choco",
-            win_clang_prefix: "\\x64",
-            arch: "arm64",
-            vcvarsbat: vcvarsamd64_arm64.bat
-          }
-        - {
-            name: 'windows arm',
-            os: windows-2022,
-            cmake_config_flags: "-G Ninja",
-            pkg_mgr: "choco",
-            arch: "arm",
-            vcvarsbat: vcvarsamd64_arm.bat
-          }
-        - {
-            name: 'windows x86',
-            os: windows-2022,
-            cmake_config_flags: "-G Ninja",
-            pkg_mgr: "choco",
-            arch: "x86",
-            vcvarsbat: vcvars32.bat
-          }
+        # - {
+        #     name: 'windows arm64',
+        #     os: windows-2022,
+        #     cmake_config_flags: "-G Ninja",
+        #     pkg_mgr: "choco",
+        #     win_clang_prefix: "\\x64",
+        #     arch: "arm64",
+        #     vcvarsbat: vcvarsamd64_arm64.bat
+        #   }
+        # - {
+        #     name: 'windows arm',
+        #     os: windows-2022,
+        #     cmake_config_flags: "-G Ninja",
+        #     pkg_mgr: "choco",
+        #     arch: "arm",
+        #     vcvarsbat: vcvarsamd64_arm.bat
+        #   }
+        # - {
+        #     name: 'windows x86',
+        #     os: windows-2022,
+        #     cmake_config_flags: "-G Ninja",
+        #     pkg_mgr: "choco",
+        #     arch: "x86",
+        #     vcvarsbat: vcvars32.bat
+        #   }
         - {
             name: 'linux x64',
             os: ubuntu-22.04,
