@@ -46,71 +46,71 @@ jobs:
             arch: "x64",
             vcvarsbat: vcvars64.bat
           }
-        # - { 
-        #     name: 'macos',
-        #     os: macos-14,
-        #     arch: arm64-x86_64,
-        #     cmake_config_flags: "-G Ninja -DCMAKE_OSX_ARCHITECTURES=arm64\\;x86_64 -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13",
-        #     pluginval_link: "https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_macOS.zip",
-        #     pluginval_path: "pluginval.app/Contents/MacOS/pluginval",
-        #     build_shell: "bash",
-        #     pkg_mgr: "brew"
-        #   }
-        # - {
-        #     name: 'windows arm64',
-        #     os: windows-2022,
-        #     cmake_config_flags: "-G Ninja",
-        #     pkg_mgr: "choco",
-        #     win_clang_prefix: "\\x64",
-        #     arch: "arm64",
-        #     vcvarsbat: vcvarsamd64_arm64.bat
-        #   }
-        # - {
-        #     name: 'windows arm',
-        #     os: windows-2022,
-        #     cmake_config_flags: "-G Ninja",
-        #     pkg_mgr: "choco",
-        #     arch: "arm",
-        #     vcvarsbat: vcvarsamd64_arm.bat
-        #   }
-        # - {
-        #     name: 'windows x86',
-        #     os: windows-2022,
-        #     cmake_config_flags: "-G Ninja",
-        #     pkg_mgr: "choco",
-        #     arch: "x86",
-        #     vcvarsbat: vcvars32.bat
-        #   }
-        # - {
-        #     name: 'linux x64',
-        #     os: ubuntu-22.04,
-        #     arch: x64,
-        #     cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++",
-        #     pluginval_link: "https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_Linux.zip",
-        #     pluginval_path: "./pluginval",
-        #     pkg_mgr: "sudo apt-get -y",
-        #   }
-        # - {
-        #     name: 'linux arm64',
-        #     os: ubuntu-22.04,
-        #     arch: aarch64,
-        #     cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++",
-        #     pkg_mgr: "sudo apt-get -y",
-        #   }
-        # - {
-        #     name: 'linux x86',
-        #     os: ubuntu-22.04,
-        #     arch: i686,
-        #     cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++",
-        #     pkg_mgr: "sudo apt-get -y",
-        #   }
-        # - {
-        #     name: 'linux arm32',
-        #     os: ubuntu-22.04,
-        #     arch: armv7l,
-        #     cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++",
-        #     pkg_mgr: "sudo apt-get -y",
-        #   }
+        - { 
+            name: 'macos',
+            os: macos-14,
+            arch: arm64-x86_64,
+            cmake_config_flags: "-G Ninja -DCMAKE_OSX_ARCHITECTURES=arm64\\;x86_64 -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13",
+            pluginval_link: "https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_macOS.zip",
+            pluginval_path: "pluginval.app/Contents/MacOS/pluginval",
+            build_shell: "bash",
+            pkg_mgr: "brew"
+          }
+        - {
+            name: 'windows arm64',
+            os: windows-2022,
+            cmake_config_flags: "-G Ninja",
+            pkg_mgr: "choco",
+            win_clang_prefix: "\\x64",
+            arch: "arm64",
+            vcvarsbat: vcvarsamd64_arm64.bat
+          }
+        - {
+            name: 'windows arm',
+            os: windows-2022,
+            cmake_config_flags: "-G Ninja",
+            pkg_mgr: "choco",
+            arch: "arm",
+            vcvarsbat: vcvarsamd64_arm.bat
+          }
+        - {
+            name: 'windows x86',
+            os: windows-2022,
+            cmake_config_flags: "-G Ninja",
+            pkg_mgr: "choco",
+            arch: "x86",
+            vcvarsbat: vcvars32.bat
+          }
+        - {
+            name: 'linux x64',
+            os: ubuntu-22.04,
+            arch: x64,
+            cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++",
+            pluginval_link: "https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_Linux.zip",
+            pluginval_path: "./pluginval",
+            pkg_mgr: "sudo apt-get -y",
+          }
+        - {
+            name: 'linux arm64',
+            os: ubuntu-22.04,
+            arch: aarch64,
+            cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++",
+            pkg_mgr: "sudo apt-get -y",
+          }
+        - {
+            name: 'linux x86',
+            os: ubuntu-22.04,
+            arch: i686,
+            cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++",
+            pkg_mgr: "sudo apt-get -y",
+          }
+        - {
+            name: 'linux arm32',
+            os: ubuntu-22.04,
+            arch: armv7l,
+            cmake_config_flags: "-G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++",
+            pkg_mgr: "sudo apt-get -y",
+          }
 
     # Steps run in sequence. Each step runs in its own process in the runner environment and has access to the workspace and filesystem
     # NB! Because steps run in their own process, changes to environment variables are not preserved between steps
@@ -231,7 +231,8 @@ jobs:
         call "%ProgramFiles%\Microsoft Visual Studio\${{env.VS_VERSION}}\Enterprise\VC\Auxiliary\Build\${{matrix.config.vcvarsbat}}"
         cmake -B build ${{matrix.config.cmake_config_flags}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ^
         -DCMAKE_C_COMPILER="%ProgramFiles%\\Microsoft Visual Studio\\${{env.VS_VERSION}}\\Enterprise\\VC\\Tools\\Llvm${{matrix.config.win_clang_prefix}}\\bin\\clang.exe" ^
-        -DCMAKE_CXX_COMPILER="%ProgramFiles%\\Microsoft Visual Studio\\${{env.VS_VERSION}}\\Enterprise\\VC\\Tools\\Llvm${{matrix.config.win_clang_prefix}}\\bin\\clang.exe" 
+        -DCMAKE_CXX_COMPILER="%ProgramFiles%\\Microsoft Visual Studio\\${{env.VS_VERSION}}\\Enterprise\\VC\\Tools\\Llvm${{matrix.config.win_clang_prefix}}\\bin\\clang.exe" ^
+        -DCMAKE_CXX_FLAGS=" /D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR"
 
     - name: set permissions macos
       if: runner.os == 'macOS'
