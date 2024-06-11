@@ -48,7 +48,7 @@ jobs:
         - {
             name: 'windows x64',
             os: windows-2022,
-            cmake_config_flags: "-G \"Visual Studio 17 2022\"",
+            cmake_config_flags: "-G Ninja",
             pluginval_link: "https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_Windows.zip",
             pluginval_path: "./pluginval.exe",
             pkg_mgr: "choco",
@@ -59,7 +59,7 @@ jobs:
         - {
             name: 'windows arm64',
             os: windows-2022,
-            cmake_config_flags: "-G \"Visual Studio 17 2022\"",
+            cmake_config_flags: "-G Ninja",
             pkg_mgr: "choco",
             win_clang_prefix: "\\x64",
             arch: "arm64",
@@ -68,7 +68,7 @@ jobs:
         - {
             name: 'windows arm',
             os: windows-2022,
-            cmake_config_flags: "-G \"Visual Studio 17 2022\"",
+            cmake_config_flags: "-G Ninja",
             pkg_mgr: "choco",
             arch: "arm",
             vcvarsbat: vcvarsamd64_arm.bat
@@ -76,7 +76,7 @@ jobs:
         - {
             name: 'windows x86',
             os: windows-2022,
-            cmake_config_flags: "-G \"Visual Studio 17 2022\"",
+            cmake_config_flags: "-G Ninja",
             pkg_mgr: "choco",
             arch: "x86",
             vcvarsbat: vcvars32.bat
@@ -220,7 +220,7 @@ jobs:
         ${{matrix.config.pkg_mgr}} install zip
 
     - name: configure cmake unix-like
-      if: runner.os != 'Windows'
+      # if: runner.os != 'Windows'
       run: |
         cmake -B build ${{matrix.config.cmake_config_flags}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
@@ -240,16 +240,9 @@ jobs:
         sudo chmod -R 777 /Library/Audio/Plug-Ins/
 
     - name: build unix-like
-      # if: runner.os != 'Windows'
+      if: runner.os != 'Windows'
       run: |
         cmake --build build ${{matrix.config.cmake_build_flags}}
-
-    - name: set permissions windows
-      if: runner.os == 'Windows'
-      shell: bash
-      run: |
-        chown -R $(whoami) .
-        chmod -R 777 .
 
     - name: build windows
       if: runner.os == 'Windows'
