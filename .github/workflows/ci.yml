@@ -220,7 +220,7 @@ jobs:
         ${{matrix.config.pkg_mgr}} install zip
 
     - name: configure cmake unix-like
-      # if: runner.os != 'Windows'
+      if: runner.os != 'Windows'
       run: |
         cmake -B build ${{matrix.config.cmake_config_flags}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
