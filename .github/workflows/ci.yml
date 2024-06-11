@@ -35,17 +35,6 @@ jobs:
       # Define a matrix of job configurations:
       matrix:
         config:
-        - {
-            name: 'windows x64',
-            os: windows-2022,
-            cmake_config_flags: "-G Ninja",
-            pluginval_link: "https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_Windows.zip",
-            pluginval_path: "./pluginval.exe",
-            pkg_mgr: "choco",
-            win_clang_prefix: "\\x64",
-            arch: "x64",
-            vcvarsbat: vcvars64.bat
-          }
         - { 
             name: 'macos',
             os: macos-14,
@@ -57,9 +46,19 @@ jobs:
             pkg_mgr: "brew"
           }
         - {
+            name: 'windows x64',
+            os: windows-2022,
+            # cmake_config_flags: "-G Ninja",
+            pluginval_link: "https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_Windows.zip",
+            pluginval_path: "./pluginval.exe",
+            pkg_mgr: "choco",
+            win_clang_prefix: "\\x64",
+            arch: "x64",
+            vcvarsbat: vcvars64.bat
+          }
+        - {
             name: 'windows x86',
             os: windows-2022,
-            cmake_config_flags: "-G Ninja",
             pkg_mgr: "choco",
             arch: "x86",
             vcvarsbat: vcvars32.bat
@@ -228,9 +227,9 @@ jobs:
       run: |
         call "%ProgramFiles%\Microsoft Visual Studio\${{env.VS_VERSION}}\Enterprise\VC\Auxiliary\Build\${{matrix.config.vcvarsbat}}"
         cmake -B build ${{matrix.config.cmake_config_flags}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} ^
-        -DCMAKE_C_COMPILER="%ProgramFiles%\\Microsoft Visual Studio\\${{env.VS_VERSION}}\\Enterprise\\VC\\Tools\\Llvm${{matrix.config.win_clang_prefix}}\\bin\\clang.exe" ^
-        -DCMAKE_CXX_COMPILER="%ProgramFiles%\\Microsoft Visual Studio\\${{env.VS_VERSION}}\\Enterprise\\VC\\Tools\\Llvm${{matrix.config.win_clang_prefix}}\\bin\\clang.exe" ^
         -DCMAKE_CXX_FLAGS=" /D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR"
+      # -DCMAKE_C_COMPILER="%ProgramFiles%\\Microsoft Visual Studio\\${{env.VS_VERSION}}\\Enterprise\\VC\\Tools\\Llvm${{matrix.config.win_clang_prefix}}\\bin\\clang.exe" ^
+      # -DCMAKE_CXX_COMPILER="%ProgramFiles%\\Microsoft Visual Studio\\${{env.VS_VERSION}}\\Enterprise\\VC\\Tools\\Llvm${{matrix.config.win_clang_prefix}}\\bin\\clang.exe" ^
 
     - name: set permissions macos
       if: runner.os == 'macOS'
