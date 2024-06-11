@@ -140,6 +140,7 @@ void RipuLimiterAudioProcessor::changeProgramName(int index, const juce::String&
 //==============================================================================
 void RipuLimiterAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
+    return;
     auto numChannels = getTotalNumInputChannels();
     if (numChannels == 0)
         return;
@@ -223,7 +224,6 @@ void RipuLimiterAudioProcessor::processBlockInternal(
 )
 {
     return;
-
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
