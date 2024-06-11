@@ -240,17 +240,17 @@ jobs:
         sudo chmod -R 777 /Library/Audio/Plug-Ins/
 
     - name: build unix-like
-      # if: runner.os != 'Windows'
+      if: runner.os != 'Windows'
       shell: bash
       run: |
         cmake --build build ${{matrix.config.cmake_build_flags}} --config ${{env.BUILD_TYPE}}
 
-    # - name: build windows
-    #   if: runner.os == 'Windows'
-    #   shell: cmd    
-    #   run: |
-    #     call "%ProgramFiles%\Microsoft Visual Studio\${{env.VS_VERSION}}\Enterprise\VC\Auxiliary\Build\${{matrix.config.vcvarsbat}}"
-    #     cmake --build build ${{matrix.config.cmake_build_flags}} --config ${{env.BUILD_TYPE}}
+    - name: build windows
+      if: runner.os == 'Windows'
+      shell: cmd    
+      run: |
+        call "%ProgramFiles%\Microsoft Visual Studio\${{env.VS_VERSION}}\Enterprise\VC\Auxiliary\Build\${{matrix.config.vcvarsbat}}"
+        cmake --build build ${{matrix.config.cmake_build_flags}} --config ${{env.BUILD_TYPE}}
 
 
     # Note: I was unable to get AU validation with pluginval 1.0.x working on a GitHub Actions runner even when copying the plugin to `/Library/Audio/Plug-ins/Components`.
