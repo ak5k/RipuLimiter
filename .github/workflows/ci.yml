@@ -242,13 +242,12 @@ jobs:
     - name: build unix-like
       # if: runner.os != 'Windows'
       run: |
-        cmake --build build ${{matrix.config.cmake_build_flags}}
+        cmake --build build ${{matrix.config.cmake_build_flags}} --config ${{env.BUILD_TYPE}}
 
     # - name: build windows
     #   if: runner.os == 'Windows'
     #   shell: cmd    
     #   run: |
-    #     call "%ProgramFiles%\Microsoft Visual Studio\${{env.VS_VERSION}}\Enterprise\VC\Auxiliary\Build\${{matrix.config.vcvarsbat}}"
     #     cmake --build build ${{matrix.config.cmake_build_flags}} --config ${{env.BUILD_TYPE}}
 
 
