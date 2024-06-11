@@ -57,9 +57,16 @@ jobs:
             pkg_mgr: "brew"
           }
         - {
-            name: 'windows arm64',
+            name: 'windows x86',
             os: windows-2022,
             cmake_config_flags: "-G Ninja",
+            pkg_mgr: "choco",
+            arch: "x86",
+            vcvarsbat: vcvars32.bat
+          }
+        - {
+            name: 'windows arm64',
+            os: windows-2022,
             pkg_mgr: "choco",
             win_clang_prefix: "\\x64",
             arch: "arm64",
@@ -68,18 +75,9 @@ jobs:
         - {
             name: 'windows arm',
             os: windows-2022,
-            cmake_config_flags: "-G Ninja",
             pkg_mgr: "choco",
             arch: "arm",
             vcvarsbat: vcvarsamd64_arm.bat
-          }
-        - {
-            name: 'windows x86',
-            os: windows-2022,
-            cmake_config_flags: "-G Ninja",
-            pkg_mgr: "choco",
-            arch: "x86",
-            vcvarsbat: vcvars32.bat
           }
         - {
             name: 'linux x64',
