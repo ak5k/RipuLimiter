@@ -24,6 +24,7 @@ RipuLimiterAudioProcessor::~RipuLimiterAudioProcessor() = default;
 juce::AudioProcessorValueTreeState::ParameterLayout RipuLimiterAudioProcessor::createParameterLayout()
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
+    return {params.begin(), params.end()};
 
     {
         auto attributes = AudioParameterFloatAttributes().withLabel(" dB");
