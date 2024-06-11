@@ -213,7 +213,9 @@ target_sources(${PROJECT_NAME}
 ################################################################################
 
 if (MSVC)
-    # set_source_files_properties(${SOURCES} PROPERTIES COMPILE_FLAGS "/W4")
+    if (CMAKE_BUILD_TYPE STREQUAL "Release")
+        target_compile_options(${PROJECT_NAME} PUBLIC /Qpar /arch:AVX2)
+    endif()
 else ()
     string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" LOWERCASE_PROCESSOR)
     if (NOT APPLE AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
