@@ -48,7 +48,7 @@ jobs:
         - {
             name: 'windows x64',
             os: windows-2022,
-            cmake_config_flags: "-G Ninja",
+            cmake_config_flags: "-G \"Visual Studio 17 2022\"",
             pluginval_link: "https://github.com/Tracktion/pluginval/releases/latest/download/pluginval_Windows.zip",
             pluginval_path: "./pluginval.exe",
             pkg_mgr: "choco",
@@ -59,7 +59,7 @@ jobs:
         - {
             name: 'windows arm64',
             os: windows-2022,
-            cmake_config_flags: "-G Ninja",
+            cmake_config_flags: "-G \"Visual Studio 17 2022\"",
             pkg_mgr: "choco",
             win_clang_prefix: "\\x64",
             arch: "arm64",
@@ -68,7 +68,7 @@ jobs:
         - {
             name: 'windows arm',
             os: windows-2022,
-            cmake_config_flags: "-G Ninja",
+            cmake_config_flags: "-G \"Visual Studio 17 2022\"",
             pkg_mgr: "choco",
             arch: "arm",
             vcvarsbat: vcvarsamd64_arm.bat
@@ -76,7 +76,7 @@ jobs:
         - {
             name: 'windows x86',
             os: windows-2022,
-            cmake_config_flags: "-G Ninja",
+            cmake_config_flags: "-G \"Visual Studio 17 2022\"",
             pkg_mgr: "choco",
             arch: "x86",
             vcvarsbat: vcvars32.bat
